@@ -4,16 +4,16 @@
     "type": "split",
     "children": [
       {
-        "id": "b7431d6da82ad539",
+        "id": "48b0ae2e033e7f38",
         "type": "tabs",
         "children": [
           {
-            "id": "8088117d39d32ac6",
+            "id": "9f6312ae937a7ccd",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "CPP_Course/03_CPP_Course.md",
+                "file": "CPP_Course/04_CPP_Course.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "CPP_Course/03_CPP_Course.md",
+                "file": "CPP_Course/04_CPP_Course.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "CPP_Course/03_CPP_Course.md",
+                "file": "CPP_Course/04_CPP_Course.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "CPP_Course/03_CPP_Course.md"
+                "file": "CPP_Course/04_CPP_Course.md"
               }
             }
           },
@@ -160,15 +160,17 @@
       "obsidian-excalidraw-plugin:Create new drawing": false
     }
   },
-  "active": "8088117d39d32ac6",
+  "active": "9f6312ae937a7ccd",
   "lastOpenFiles": [
+    "Home.md",
+    "CPP_Course/04_CPP_Course.md",
+    "CPP_Course/03_CPP_Course.md",
+    "CPP_Course/05_CPP_Course.md",
     "CPP_Course/02_CPP_Course.md",
     "CPP_Course/01_CPP_Course.md",
-    "CPP_Course/03_CPP_Course.md",
     "Images/CppValueCategories.png",
     "Images",
     "Notes.md",
-    "Home.md",
     "CPP_Course/Additional_Notes/Look_Later_Subjects.md",
     "Programming/Sort Algorithms/Selection Sort.md",
     "Programming/Sort Algorithms/Radix Sort.md",
@@ -186,8 +188,6 @@
     "Interview Qustions/All Questions.md",
     "CPP_Topics/RAII (Resource Acquisition Is Initialization).md",
     "CPP_Course/Course_Drawings/Value_Category.md",
-    "CPP_Course/05_CPP_Course.md",
-    "CPP_Course/04_CPP_Course.md",
     "CPP_Course/08_CPP_Course.md",
     "CPP_Course/00_Course_Files.md",
     "CPP_Course/09_CPP_Course.md",

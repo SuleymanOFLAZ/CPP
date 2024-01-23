@@ -39,7 +39,7 @@ constexpr const int* q = &g; // Here q is const too
 q = &x; // Syntax Error
 
 constexpr int* q = &g; // q is const but what it ponits to is not const
-q = &x; // OK
+q = &x; // Syntax error, q is const
 ```
 
 Following syntax is OK. "constexpr" qualifies the top level.
