@@ -4,14 +4,14 @@
 #Cpp_constexpr
 constexpr is added to the language after modern C++. Constexpr says to the compiler and the reader that the object created as constexpr is can be used where literal expression is needed.
 
-const is a part of type, but constexpr is not. That means there is a type like const int but there is no type like constexpr int. Type of an object declared with constexpr is const. For example:
+const is a part of type, but constexpr is not. That means there is a type like "const int" but there is no type like "constexpr int". Type of an object declared with constexpr is const. For example:
 ```cpp
 constexpr int x = 10; // Type of x is "const int"
 ```
 
 A const expression must be initialized with a constant expression. constexpr comprehends the const but also <mark style="background: #FFF3A3A6;">can be used in places where constant expression is needed.</mark>
    
-Let's look at const first. We can use a const in places where a constant expression needed, if only the cont is initialized with a const expression. For example:
+Let's look at const first. We can use a const in places where a constant expression needed, if only the const is initialized with a const expression. For example:
 ```cpp
 const int x = y; // Not used in places that needs constant expression
 const int c = 10; // Can be used as constant expression
@@ -19,7 +19,7 @@ const int c = 10; // Can be used as constant expression
 
 If we use "constexpr" keyword instead of "const", we assign a responsibility to the compiler about the qualified object is must be able to used at places that constant expression is needed. This responsibility is for compile time. If the object is not be able to used at places that requires constant expression, the compiler throws syntax error. The compiler checks, if the object qualified with constexpr is initialized with a constant expression or not.
 
-if we process a constexpr object with a constant expression, the result of it is also constexpr.
+If we process a constexpr object with a constant expression, the result of it is also constexpr.
 ```cpp
 constexpr int x = 10;
 x + 20; // That expression is "constexpr" too
@@ -32,14 +32,16 @@ constxpr int x = 10;
 ```
 The type of x is const int in upper two lines. And there is no difference between them.
 
-But there is difference between two expression on below code, "constexpr" qualifies the object, so it makes the object const (top level const pointer):
+But there is difference between two expression in below code, "constexpr" qualifies the object, so it makes the object const (top level const pointer):
 ```cpp
 const int* p = &g; // This is low level const means p is not const itself
 constexpr const int* q = &g; // Here q is const too
 q = &x; // Syntax Error
-
+//---
 constexpr int* q = &g; // q is const but what it ponits to is not const
 q = &x; // Syntax error, q is const
+*q = 12; // OK
+
 ```
 
 Following syntax is OK. "constexpr" qualifies the top level.
@@ -67,7 +69,6 @@ const int y = 40;
 constexpr int z = 909;
 constexpr auto x = y + z; // OK
 ```
-
 ## Constexpr Functions
 #Cpp_constexpr_functions
 We can qualify a function with "constexpr" keyword too.
@@ -120,7 +121,7 @@ int main()
 	int a = 7;
 	int b = 5;
 
-	func(a, b); // This is calculated at run time
+	func(a, b); // This is calculated at runtime
 	int ar[func(a, b)] {}; // This is syntax ERROR because the function not called with constxpr
 	constexpr int c = func(a, a + 21); // syntax ERROR because function return is not constexpr, the error not related to the function call
 	int e = func(a, a + 21); // OK, calculated at runtime
@@ -237,7 +238,7 @@ int main()
 }
 ```
 
-Functions that have same signature but have different return type is syntax error. Bu if the signatures different, the return type different do not cause a syntax error.
+Functions that have same signature but have different return type is syntax error. Bu if the signatures different, the return type difference do not cause a syntax error.
 ```cpp
 // Syntax ERROR example
 int foo(int);
@@ -276,7 +277,6 @@ A: The answer is three. char, unsigned char and signed char types are distinct f
 
 > [!note] Note: About "char" Type
 > A variable created with only "char" keyword can be signed or unsigned depending on compiler. This means if the char signed or unsigned is "unspecified", but "implementation defined". But this makes the "char" different types. So "char", "signed char", and "unsigned char" are three different type in C++. They makes the function signature different. This rules are same in C too.
-
 #Cpp_C_difference 
 
 ```cpp
@@ -354,12 +354,11 @@ A: Yes, there is. Bool and int are different types in C++.
 
 > [!note] Note: Variadic function difference between C and C++
 > There must be at least one parameter before the variadic parameter in C. But in C++, there is no need for this. A variadic function can be declared with only variadic parameter.
-
 #Cpp_C_difference
 # Function Overload Resolution
 #Cpp_FunctionOverloadResolution
 Existence of function overloading is not related to function overload resolution. Function overload resolution is about which overloaded function will be called after a overloaded function call.
-<mark style="background: #FFF3A3A6;">If there is function overload, the compiler determines which function will be called depending on language's complex rules. We must understand this rules very well</mark>.
+If there is function overload, the compiler determines which function will be called depending on language's complex rules. We must understand this rules very well.
 
 **How a function overload resolution can be concluded?**
 Function overload resolution can be concluded in two different way:
@@ -493,7 +492,7 @@ int main()
 }
 ```
 
-The const conversion is included in exact match. For example the conversion from <mark style="background: #ADCCFFA6;">int*</mark> to <mark style="background: #ADCCFFA6;">const int*</mark> is accepted exact match.
+The const conversion is included in exact match. For example the conversion from int\* to const int\* is accepted exact match.
 ```cpp
 void func(const int *);
 
@@ -503,6 +502,8 @@ int main()
 	func(&X); // The converion from "int*" to "const int*" is accepted exact match
 }
 ```
+> [!warning]  Warning: Reverse situation is not viable
+> We cannot call a "int\*" parameter function with "const int\*" type. Because there is no type conversion form "const T\*" to "T\*" in C++. There is only type conversion from "T\*" to "const T\*".
 
 Array decay is accepted as exact match:
 ```cpp
@@ -511,7 +512,7 @@ void func(const int *);
 int main()
 {
 	int a[] = {1, 2, 3};
-	func(a); // The type of the argument is int[3] the type is converted to int* type with array decay. That means exact match
+	func(a); // The type of the argument is "int[3]" the type is converted to "int*" type with array decay. That means exact match
 }
 ```
 
@@ -549,19 +550,19 @@ If the conversion is not a exact match or promotion, this conversion is least el
 
 ```cpp
 void func(int);
-void func (double);
+void func(double);
 void func(char);
 
 int main()
 {
 	func(12); // First function is called because of exact match
-	func(3.4f); // Second function is called because of float to doble promotion
+	func(3.4f); // Second function is called because of float to double promotion
 	funct(12u); // This is ambiguity
 }
 ```
 
 > [!note] Note: 
-> "unsigned int" and "int"/"signed int" are not same type. So if we call a function that has an "int" argument with an "unsigned int" type, that wouldn't be exact match. This would be standard conversion.
+> "unsigned int" and "int/signed int" are not same type. So if we call a function that has an "int" argument with an "unsigned int" type, that wouldn't be exact match. It would be standard conversion.
 
 ```cpp
 void func(long double);
@@ -660,7 +661,7 @@ int main()
 > 0 was used as null pointer before modern C++. We make a call like that "func(0);" if we want to call "void func(int* p)". This is named "null pointer conversion". We not prefer to use it after modern C++.
 
 > [!warning]  Warning: 
-> Let's think a situation that we made a function call like that: <mark style="background: #ADCCFFA6;">func(0);</mark>. And the function that we want to make a call is : <mark style="background: #ADCCFFA6;">void func(int* p);</mark>. But after that we include a header file that has the function <mark style="background: #ADCCFFA6;">void func(void);</mark>. This is not a syntax error. Because the function that excepts int argument is chosen because of exact match. But we want to call the other function. We can't even figure out that our function isn't called. This is a very big problem.
+> Let's think a situation that we made a function call like that "func(0);" to call to "void func(int* p);". But after that we include a header file that has the function "void func(int);". This is not a syntax error. Because the function that excepts int argument is chosen because of exact match. But we want to call the other function. We can't even figure out that our function isn't called. This is a very big problem.
 > This situation is not an issue now with modern C++'s "nullptr" approach. nullptr_t has automatic type conversion to all pointer types, but has not to other types.
 
 ```cpp
@@ -701,8 +702,8 @@ int main()
 ```
 
 ## Special cases of function overload resolution
-
-1. We mentioned that calling <mark style="background: #ADCCFFA6;">void func(const int*)</mark> with <mark style="background: #ADCCFFA6;">int*</mark> is an exact match:
+#Cpp_ConstOverloading
+1. We mentioned that calling "void func(const int*)" with "int*" is an exact match:
 ```cpp
 void func(int*);
 void func (const int*);
@@ -710,11 +711,10 @@ void func (const int*);
 int main()
 {
 	int x = 10;
-	funt(&x); // exact match
-}
+	funt(&x); // Exact Match, but which one.
 ```
 
-But below code is function overloading. This named <mark style="background: #BBFABBA6;">const overloading</mark>.
+But below code is function overloading.  This named <mark style="background: #BBFABBA6;">const overloading</mark>, and there is a special rule for this situation.
 ```cpp
 void func(int*);
 void func(const int*);
@@ -741,7 +741,7 @@ int main()
 	func (&cx); // Exact match to the second function. Already the first function is not viable.
 }
 ```
-Upper code is exact match to second function. <mark style="background: #FFF3A3A6;">The first one is not viable.</mark> <mark style="background: #FFF3A3A6;">Because there is no type conversion from <mark style="background: #D2B3FFA6;">const T*</mark> to <mark style="background: #D2B3FFA6;">T*</mark> in C++</mark>. This is not a special case. 
+Upper code is exact match to second function. <mark style="background: #FFF3A3A6;">The first one is not viable in this situation, because there is no type conversion from <mark style="background: #D2B3FFA6;">const T*</mark> to <mark style="background: #D2B3FFA6;">T*</mark> in C++</mark>. This is not a special case. 
 
 But look at below code:
 ```cpp
@@ -766,7 +766,12 @@ int main()
 	func(&x); // first function is called
 }
 ```
-<mark style="background: #FFF3A3A6;">Two functions are viable in upper code.  This is a language rule.</mark> <mark style="background: #FFF3A3A6;">Don't forger two of them are exact match.</mark>. For const object, function that takes const pointer is called and for non-const object, function that takes non-const argument is called. This is a special case and language rule.
+<mark style="background: #FFF3A3A6;">Two functions are viable in upper code.  This is a language rule.</mark> <mark style="background: #FFF3A3A6;">Don't forger two of them are exact match.</mark>. 
+
+<mark style="background: #FFF3A3A6;">The Rule is that</mark>: 
+- For const object, function that takes const pointer is called.
+- For non-const object, function that takes non-const argument is called.
+This is a special case and language rule.
 
 Const overloading is frequently used and there are a lot of examples in the standard library.
 Corresponding reference semantic is valid too:
@@ -802,11 +807,11 @@ int main(
 	*p = 'k'; // Unfedined behavior, but not a syntax error, we assign a value to a strign literal character
 }
 ```
-The return type of strchr is not "const char*". So we can assign a value to the returned pointer object. This can cause undefined behavior if we gave a string literal to the function for search.
+The return type of "strchr" is not "const char*". So we can assign a value to the returned pointer object. This can cause undefined behavior if we gave a string literal to the function for search.
 
 This problem can be overcame in C++. If we look that function in C++'s standard library, we can see the function is overloaded:
 ```cpp
-const char* Strehr (const char*, int c);
+const char* Strchr (const char*, int c);
 char* Strchr (char*, int c);
 
 int main(
@@ -822,7 +827,7 @@ int main(
 	*ptr = 'k'; // OK, ptr is not const
 }
 ```
-With that syntax, the called function will be the function that has <mark style="background: #D2B3FFA6;">const char*</mark> according to the language rule (string literals must be const char* in C++). And that returns a <mark style="background: #D2B3FFA6;">const char*</mark> type. That solves the problem. We see how important is the const overloading with this example.
+With that syntax, the called function will be the function that has "const char\*" according to the language rule (string literals must be const char\* in C++). And that returns a "const char\*" type. That solves the problem. We see how important is the const overloading with this example.
 
 > [!question] Question: Interview Question (C and C++)
 > Q: What is the difference between below two lines?
@@ -893,8 +898,8 @@ void f(bool, int, double);
 
 int main()
 {
-	f(7u, 12, 'A');
-	f(7u, 12, 6L);
+	f(7u, 12, 'A'); // Second function has advantage on 2nd argument.
+	f(7u, 12, 6L); // Ambiguity, second function has advantage in 2nd argument and first function has advantage on 3rd argument
 }
 ```
 
@@ -910,7 +915,7 @@ int x{};
 
 int main)  
 {  
-	foo(&x); // Second one is chosed. This is a special rule
+	foo(&x); // Second one (void*) is choosen. This is a special rule
 }
 ```
 
@@ -938,6 +943,7 @@ But don't use type-cast operator that comes from C except some rare situations. 
 - reinterpret_cast
 - dynamic_cast
 ## R value references and function overloading 
+#Cpp_RvalueReference
 R value references added to the language in order to use move semantics and perfect forwarding in transition to Modern C++. 
 
 in order to add support of move semantics to the function overload resolution, Some additions are made to the language's function overload rules with modern C++.

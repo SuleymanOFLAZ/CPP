@@ -27,7 +27,7 @@ In programming languages there are two basic type concepts. These are:
 
 Compiler detect data's type depends on source code and can make checks at compile time. For example if we try to assign a real number on a integer type, compiler can detect that and warn us. This is static typing concept. Dynamic typing concept is to detect datas type on run time. For example x = "string", than x = 12.
 
-<mark style="background: #FFF3A3A6;">C++, C#, and Java like programming languages are actually kind of static typing concept. But also they have support to dynamic typing concepts.</mark>
+<mark style="background: #FFF3A3A6;">C++, C#, and Java like programming languages are actually has the static typing concept. But also they have support to dynamic typing concepts.</mark>
 
 Though C has static typing concept. Dynamic typing concept can be ensured by writing code.
 
@@ -37,10 +37,11 @@ Although both C and C++ has static typing concept, this not mean their concepts 
 
 ```cpp
 int *p = malloc(n); // malloc return type is void*
+// This is a syntax error in C++ (void* - > T*)
 ```
 
 Type of the string literals in C is <mark style="background: #ADCCFFA6;">char*</mark>, but in C++ it is <mark style="background: #ADCCFFA6;">const char*</mark>.
-Because type of string literals of string in C is char*, following syntax is legal in C, but it is undefined behavior in C:
+Because type of string literals of string in C is char*, following syntax is legal in C, but it is also undefined behavior in C:
 ```c
 char *p = "Hello";
 ```
@@ -70,7 +71,7 @@ Function differences between C++ C core and C:
 C was had implicit int rule until 99. Well, implicit int rule allowed in C89 and not allowed C99 and after that. With C99 standard this rule has been removed. But some compiler has been keep the support for this rule in order to keep support to legacy C code. 
 Implicit int rule means the language assumes the type of data as int in some cased when we not mention the int explicitly. For example function returns:
 ```c
-func(void) // There is no return type. The compiler assumes that as int
+func(void) // There is no return type. The compiler assumes that as int (C)
 {
 
 }
@@ -84,7 +85,7 @@ In C, there is a difference between empty function argument list and void functi
 int func();
 int foo(void);
 ```
-If we call the function func() with an argument, the compiler doesn't throw an error. Bu if we call function foo() with an argument the compiler does it.
+If we call the function func() with an argument, the compiler doesn't throw an error. But if we call function foo(void) with an argument the compiler does it.
 
 However, calling both function with an argument is a syntax error in C++.
 
@@ -125,40 +126,46 @@ Type and type conversion related differences between C++ C core and C:
 4. Character literal types (keep caution on function overload)
 5. String literal types
 
-1. <mark style="background: #FFF3A3A6;">The conversation between arithmetic types and address types</mark>. This is legal in C but in-legal in C++. For example:
+1. The conversation between arithmetic types and address types. This is legal in C but illegal in C++. For example:
 ```c
 int main()
 {
 	int x = 10;
-	int* p = x;
+	int* p = x; // Syntax error in C++, there is no type conversion from T -> T*
 	//
 	int* p2 = &x;
 	int y;
-	y = p2;
+	y = p2; // Syntax error in C++, there is no type conversion from T* -> T
 }
 ```
-2. <mark style="background: #FFF3A3A6;">There is not type conversation between different kind of address types in C++</mark>. This is a syntax error. But this is legal in C. For example:
+
+> [!note] Note: There is an exception to that rule, look to T* -> bool conversion.
+
+2. There is not type conversation between different kind of address types in C++. This is a syntax error. But this is legal in C. For example:
 ```c
 int main()
 {
 	int x = 34;
 	int* p = &x;
-	char* ptr = p;
+	char* ptr = p; // Syntax error in C++, there is no implicit type conversion between address types
 }
 ```
 
-3. <mark style="background: #FFF3A3A6;">There is implicit type conversion from <mark style="background: #ADCCFFA6;">void*</mark> to other address types in C. This is completely legal in C. But this is an syntax error in C++</mark>. For example:
+> [!note] Note: There is an exception to that rule, T* -> void\*
+
+3. There is implicit type conversion from void* to other address types in C. This is completely legal in C. But this is an syntax error in C++. For example:
 ```c
 int main()
 {
 	int x = 10;
 	void* p = &x;
-	int* iptr = p;
+	int* iptr = p; // Syntax error in C++, there is NO implicit type conversion form void* to T*
 }
 ```
-But there is implicit type conversion from another address type to <mark style="background: #ADCCFFA6;">void*</mark>.
 
-4. <mark style="background: #FFF3A3A6;">Character literals type in C is int type. But character literal type in C++ is char type. This is important to figure out undefined behaviors. For example C++ has feature named function overload</mark>.
+> [!note] Note: But the reverse situation is legal in C++, type conversion from T* to void\* is legal.
+
+4. Character literals type in C is int type. But character literal type in C++ is char type.
 ```cpp
 int main()
 {
@@ -173,13 +180,14 @@ void func(char);
 int main()
 {
 	func(10);
-	func('A');
+	func('A'); // Function with char argument is called, because character literal type is char in C++.
 }
 ```
-5. String literals are actually an array. <mark style="background: #FFF3A3A6;">The string literals are const in C++, however not const in C. This not mens changing string literals is true in C</mark>. This is undefined behavior in C but error in C++. For example:
-```cpp
-"hello" char[6] in C
-"hello" const char[6] in C 
+
+5. String literals are actually an array. The string literals are const in C++, however not const in C. This not mens changing string literals is true in C. This is undefined behavior in C but, error in C++. For example:
+```
+"hello" -> char[6] in C
+"hello" -> const char[6] in C++
 ```
 
 ```cpp
@@ -192,7 +200,7 @@ int main()
 }
 ```
 
-> [!note] Note: There is C++ compiler that the string literal example is not an error but a warning.
+> [!note] Note: There is C++ compilers that the string literal example is not an error but a warning.
 
 ## Const keyword differences
 Const keyword differences between C++ C core and C:
@@ -201,8 +209,7 @@ Const keyword differences between C++ C core and C:
 3. Linkage differences of global const objects
 4. Implicit conversion difference between const address to address.
 
-
-1. <mark style="background: #FFF3A3A6;">Initializing const objects is a must in C++. Keep caution that top-level const pointer must be initialized in C++, other way it will be syntax error.</mark>
+1. Initializing const objects is a obligation in C++.  This including the top-level const pointers, too. They must be initialized in C++, other way it will be syntax error.
 ```c
 // constant pointer to int
 // Top-level pointer
@@ -215,16 +222,16 @@ int* const ptr; // ! Syntax ERROR in C++. Not initialized const
 const int* ptr; // ! Not syntax error on C++
 ```
 
-2. An array size must be const in C and C++.  <mark style="background: #FFF3A3A6;">In C++ language, If a const variable initialized with a const literal (constant expression), the compiler let us to use this variable in areas that needs const literal such as array size and case of a switch and bit field</mark>. This is not allowed in C. For example:
+2. An array size must be const in C and C++.  In C++ language, If a const variable initialized with a const literal (constant expression), the compiler let us to use this variable in areas that needs const literal such as array size and case of a switch and bit field. This is not allowed in C. For example:
 ```cpp
 int main()
 {
 	const int size = 10;
-	int a[size] = { 0 };
+	int a[size] = { 0 }; // OK in C++, but syntax error in C
 }
 ```
 
-3. <mark style="background: #FFF3A3A6;">In C++, global const objects has internal linkage</mark>. But in C, global const objects has external linkage. In other expression global const objects in C++ has a static keyword in front of them.  For example:
+3. Global const objects has internal linkage in C++. But in C, global const objects have external linkage. In the other expression, global const objects in C++ has a implicit static keyword in front of them.  For example:
 ```cpp
 const int y = 20;
 // Means below in global scope:
@@ -232,7 +239,7 @@ static const int y = 20;
 ```
 
 > [!note] Note: External linkage global const object in C++
-> If we want a external linkage const in C++, we must define it with extern keyword: <mark style="background: #D2B3FFA6;">extern const int x = 10;</mark>
+> If we want a external linkage global const in C++, we must define it with extern keyword: <mark style="background: #D2B3FFA6;">extern const int x = 10;</mark>
 
 4. In C, we have implicit type conversion from <mark style="background: #ADCCFFA6;">const T*</mark> to <mark style="background: #ADCCFFA6;">T*</mark>. But this is syntax error in C++. For example:
 ```cpp
@@ -243,6 +250,8 @@ int main()
 }
 ```
 
+> [!note] Note: Reverse situation is legal. So, T\* to const T\* is legal.
+
 Because of this the following is a syntax error in C++.
 ```cpp
 int main()
@@ -251,10 +260,10 @@ int main()
 }
 ```
 
-> [!note] Note: An exception case
+> [!note] Note: An exception case in string literals
 > Not always. Some compiler only throws a warning for string literal example. But the conversion always syntax error.
 ## Bool Type conversion differences
-1. C has \_Bool keyword that added with C99 standard. This is a unsigned integer type and we can assign an integer value to that type. stdbool lib provides macros inside it to write bool  flag = true; but this is actually same as \_Bool. That leads the logic operators and the comparison operators in C is also results integer value, not exact bool value. But in C++, bool is real. There are keyword bool, true and false. Therefore in C++, we shouldn't use int instead of bool.
+1. C has \_Bool keyword that added with C99 standard. This is a unsigned integer type and we can assign an integer value to that type. stdbool lib provides macros inside it to write "bool  flag = true;" but this is actually same as \_Bool. That leads the logic operators and the comparison operators are also results integer value in C, not the exact bool value. But in C++, bool is real. There are keyword bool, true and false. Therefore in C++, we shouldn't use int instead of bool.
 2. In C++ an another type has a automatic type conversion to bool. The rule is that if the value zero than the bool value is false and other ways it is always true.
 3. In C++ bool type has automatic type conversion to other types. true bool value is converted to integer 1 or real 1. false bool value is converted to 0.
 4. In C++, there are automatic type conversion from pointer types to bool type. Except nullptr, all pointers are converted to bool as true.
@@ -265,10 +274,10 @@ int main()
 In C++, we have other options that alternative to pointer. One of them is reference semantics. But of course we can use pointer semantics in C++ too. Some alternatives to pointer in C++ is followings:
 - <mark style="background: #BBFABBA6;">reference semantics</mark>
 - <mark style="background: #BBFABBA6;">smart pointers</mark>
-- <mark style="background: #BBFABBA6;">std: reference_wrapper</mark>
+- <mark style="background: #BBFABBA6;">std::reference_wrapper</mark>
 
 ## Array differences
-In C++, classical (C style) arrays is not widely used. Can be used at low level codes but in general, std::vector, std::array are preferred.
+In C++, classical (C style) arrays is not widely used. Can be used at low level codes, but in general std::vector, std::array are preferred.
 
 ## Null pointer differences
 In C, NULL is a macro not a keyword. And NULL is actually <mark style="background: #ADCCFFA6;">(void*)0</mark>. Also assigning 0 as a integer literal to a pointer means same thing. But in C++, this is differs. <mark style="background: #ADCCFFA6;">nullptr</mark> is a keyword that added to Modern C++. Don't use NULL macro instead of nullptr in C++, if you are not dealing with legacy code. Not use 0 either.
@@ -296,7 +305,7 @@ enum Color {Blue, Red, Black};
 // underlying type
 int main()
 {
-	sizeof(enum Color) == sizeof(int); // True in C
+	sizeof(enum Color) == sizeof(int); // True in C, but nor always true in C++
 }
 ```
 

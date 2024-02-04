@@ -1,69 +1,183 @@
 [[00_Course_Files]]
 #Cpp_Course 
-If which function is called determined on compile-time, If there is no program run-time cost, for example function overloading, this is called <mark style="background: #BBFABBA6;">early binding</mark> or <mark style="background: #BBFABBA6;">static binding</mark>. 
 
-This called <mark style="background: #BBFABBA6;">late binding</mark> or <mark style="background: #BBFABBA6;">dynamic binding</mark>, if which function is called is determined on run-time. In this case another code determines which function is called on run-time. This method is used in C++, Java and C#. Even this is the only method in some languages.
+# Function Binding Methods
+#Cpp_FunctionBinding
+**Static Binding**
+If which function called is determined on compile-time, If there is no program run-time cost, for example function overloading, this is called <mark style="background: #BBFABBA6;">early binding</mark> or <mark style="background: #BBFABBA6;">static binding</mark>. 
 
-When we look at <mark style="background: #BBFABBA6;">inheritances</mark> in C++, we will see in detail the late binding or dynamic binding.
+**Dynamic Binding**
+If which function is called is determined on run-time, this called <mark style="background: #BBFABBA6;">late binding</mark> or <mark style="background: #BBFABBA6;">dynamic binding</mark>. In this case another code determines which function is called on run-time. This method is frequently used in C++, Java and C#. Even it is the only method in some languages.
+
+we will see in detail the late binding or dynamic binding, when we look at <mark style="background: #BBFABBA6;">inheritances</mark> in C++.
+
+C++ supports both methods.
 
 # Type cast operators
 #Cpp_TypeCastOperators
 There is only one type conversion operator in C. That is type-cast operator. The expression that generated with type-cast operator is not a L value expression in C.
 
-<mark style="background: #FFF3A3A6;">Keep caution. The meaning of type cast and type conversion is not same</mark>.
+The meaning of type cast and type conversion is not same.
 
-Type conversion can be implicit or explicit. Implicit type conversion means the compiler determines the type depending on code.
+Type conversion can be implicit or explicit. Implicit type conversion means the compiler determines the type depending on code. Explicit type conversion means the type conversion is done with an directive.
 
 Type cast is a type conversion with usage of an operator.
 
 Why we have new type-cast operators in C++? Type conversion is done with different purpose and there is different risk levels. This situation is valid both C and C++ and C has only one operator for this purpose.
 
 This purposes are:
-1. The compiler would do the same implicit conversion, if we didn't use the type cast. But we use the type cast operator in order to show out intend. Think that case, there is a data loss with implicit type conversion but that is okay for us. How would he reader know that? For that reason we use type conversion. The second benefit of this is the compiler doesn't warn us. 
+1. The compiler would do the same implicit conversion, if we didn't use the type cast. But we use the type cast operator in order to show out intend. Think a case that, there is a data loss with implicit type conversion but that is okay for us. How would he reader know that? For that reason we use type conversion. The second benefit of this is the compiler doesn't warn us. 
 2. Sometimes we do type conversion between address types. <mark style="background: #BBFABBA6;">Strict aliasing rule</mark>.
 3. The type conversion from a const object's address to non-const object's address.
 
-<mark style="background: #FFB8EBA6;">Note</mark>: With brace (uniform) initialization the compiler throw an error, if a data loss occurs.
+> [!note] Note: With brace (uniform) initialization the compiler throw an error, if a data loss occurs.
 
-><mark style="background: #FFF3A3A6;">We have four new type-cast operators in C++. These are keywords also. These are:</mark>
+>We have four new type-cast operators in C++. These are keywords also.
 > - <mark style="background: #BBFABBA6;">static_cast</mark>
 > - <mark style="background: #BBFABBA6;">const_cast</mark>
 > - <mark style="background: #BBFABBA6;">reinterpret_cast</mark>
 > - <mark style="background: #BBFABBA6;">dynamic_cast</mark>
 
-This type cast operators are from before modern C++.
+> [!note] Note: These are standard type-cast operators. Libraries can have more type-cast operators.
 
-<mark style="background: #ADCCFFA6;">static cast</mark>: The int divided int into double example. Integer to real number conversions.
+This type-cast operators are from before modern C++.
 
-<mark style="background: #ADCCFFA6;">cont cast</mark>: The type conversion from a const object's address to non-const object's address. Keep caution on this, most of the time const conversion lead undefined behavior. For example:
+## Static Cast
+Static cast is used to type conversations between integer and real numbers. Actually this kind of conversations are conversation that the compiler can. For example, It is used in integer divide by integer situation. Type cast to double is used to prevent data loss in this example.
+```cpp
+int sum = 354;
+int cnt = 17;
+double d = (double)sum/cnt;
+```
+
+## Const Cast
+The type conversion from a const object's address to non-const object's address. Keep caution on this, most of the time const conversion lead undefined behavior. For example:
 ```cpp
 int main()
 {
 	const int x = 10;
-	int* p = &x;
+	int* p = &x; // Syntax error in C++, but warning in C (undefined behavior).
 }
 ```
-Upper code is syntax error in C++. There is no type conversion from const int* to int*. But the compiler warn us in C, not a syntax error. But we prevent the error with type cast and if we want to change the const object, this is undefined behavior. We need const cast rarely, but we need to be careful about them. 
-Another example of the const cast is the strchr() example.
-Reference semantics is included to const cast.
+Upper code is syntax error in C++. There is no type conversion from const int* to int*. But the compiler warn us in C, not a syntax error. 
+We can prevent the error with type cast. But that doesn't mean this is true. Actually this is very dangerous, because it can lead to undefined behavior in case of we try to change the object.
+```cpp
+int main()
+{
+	const int x = 10;
+	int* p = (int*)&x; // Not syntax error because of the type cast
+	*p = 55; // Undefined behavior
+}
+```
 
-<mark style="background: #ADCCFFA6;">reinterpret cast</mark>: Type conversion between different address types.The most dangerous type cast is using one object's address as another object's address. For example a type conversion from a struct's address to char* for byte search. 
+We need const cast rarely, but when we use it, we need to be careful about it. 
 
-<mark style="background: #ADCCFFA6;">dynamic cast</mark>: This conversion cast don't exist in C. It is related to inheritance. This actualizes <mark style="background: #BBFABBA6;">down cast</mark>. The conversion from parent class to child class in inheritance. This is actualized with a code that runs on run-time (The other type casts are done in compile-time). We will look that later.
+But why we use const cast, it is dangerous? Let's look to the "strchr()" in C. Function return type is "char\*", but the function can return the address of a member of a "const char\*" array (string literal). This is completely legal in syntax of C. But if we try to deference the returned address to change it, it leads to undefined behavior. C++ overloaded that function to prevent the undefined behavior.
+```cpp
+// Related part of the strchr() in C
+char* Strchr(const char* p, int c)
+{
+	while(*p) {
+		if(*p == c)
+			return (char*)p;
+		++p;
+	}
+	// ...
+}
+```
+This is overload in C++. In this way, if we want to search in a const array the const function is called.
+```cpp
+const char* strchr(const char* p, int c):
+char* strchr(char* p, int c):
+```
 
-The syntax of these cast operators is following. The parentheses is not related to priority, the syntax is like that:
+It can be used with reference samantic too. This means we can use it to make type conversion form "const T&" to "T&"
+
+## Reinterpret Cast
+Reinterpret is the type conversion between different address types. This is the most dangerous type conversion.
+The most dangerous type cast is using one object's address as another object's address. For example a type conversion from a struct's address to char* for byte search. This type of operation can be an obligation is some cases, so we must be careful when we use it.
+```cpp
+struct Data {
+	int a, b, c;
+};
+
+int main()
+{
+	struct Data mydata = {1, 54, 6};
+
+	char* p = &mydata; // Legal in C (compiler warning). Illegal in C++, but we can make it legal with type cast operator.
+}
+```
+Upper code is legal in C (compiler warning). Illegal in C++, but we can make it legal with type cast operator.
+
+There are three kind of type conversion but there is only one interface to do that, in C. So what is the problem here?
+- It does't show the intend of the type conversion.
+- We can have difficulty find the type casts when we search for it in the code later on.
+- It is open to make mistakes to make a out of intent type conversion. For example a reinterpret cast instead of static cast.
+
+With the new type cast operators, these kind of situations are prevented. If we use the "reinterpret_cast" instead of "static_cast" in case static cast needed the compiler gives syntax error.
+
+## Dynamic Cast
+This conversion cast don't exist in C. It is related to inheritance. This actualizes <mark style="background: #BBFABBA6;">down cast</mark>. The conversion from parent class to child class in inheritance. This is actualized with a code that runs on run-time (The other type casts are done in compile-time). We will look that later.
+
+## Syntax of the type-cast operators
+The syntax of these cast operators is following.  Actually syntax of it is related to templates, but we will mention it later. The parentheses is not related to priority, it is related to the syntax. So, It would be the syntax error, if we write it without parentheses.
 ```cpp
 static_cast<target type>(expression)
 ```
 
-<mark style="background: #FFF3A3A6;">Why a one type-cast is not good for all those type conversion</mark>:
-1. It 2. The compiler throws syntax error if we try to make a wrong type conversion by mistake. For example if we try a static const conversion instead of const cast.
+```cpp
+struct Data {
+	int a, b, c;
+};
 
-<mark style="background: #FFF3A3A6;">We cannot use that type cast operators instead each other. But there is one exception: the type</mark> <mark style="background: #D2B3FFA6;">void*</mark>. The type conversion from void* to other pointer types are legal in C, but not legal in C++. static_cast and reinterpret_cast can be used from void* to another pointer type.
+int main()
+{
+	struct Data mydata = {1, 54, 6};
 
-<mark style="background: #FFF3A3A6;">We use static_cast from enum types to integer types or enum types.</mark>
+	char* p = reinterpret_cast<char *>(&mydata); // OK.
+	char* p = static_cast<char *>(&mydata); // Syntax ERROR. "reinterpret_cast" is needed in this situation
 
-<mark style="background: #FFF3A3A6;">There is no two conversion at same time. The following code is syntax error. There are two conversion here: int is a const object. For example</mark>:
+	int x = 10;
+	int y = 56;
+	if(y) {
+		double dval = static_cast<double>(x)/y; // OK.
+	}
+
+	const int* p = &x;
+	int* ptr = const_cast<int*>(p); // OK.
+}
+```
+
+> [!note]  Note: An exception
+> We cannot use the type cast operators instead of each other. But there is an exception case about it. We can use both static cast and reinterpret cast in conversion "void\*" to "T\*"
+
+```cpp
+int main()
+{
+	std::size_t n = 100;
+
+	int* p = static_cast<int*>(std::malloc(n*sizeof(int))); // OK.
+	int* p = reinterpret_cast<int*>(std::malloc(n*sizeof(int))); // OK. The exception case 
+
+}
+```
+
+We use static_cast between type conversion between enum types and integer types, because enum types are integer types.
+```cpp
+enum Color {blue, red, magenta}
+
+int main()
+{
+	Color mycolor{red};
+	int ival = 1;
+
+	mycolor = static_cast<Color>(ival); // OK.
+}
+```
+
+We cannot do the conversion with one operator, if two conversion is needed in a situation.
+There is no two conversion at same time. The following code is syntax error. There are two conversion here, int is a const object. For example:
 ```cpp
 int main()
 {
@@ -302,5 +416,17 @@ int main()
 ```
 <mark style="background: #FFF3A3A6;">Question</mark>: Which function is called in upper code? The answer is 2nd function because r is a name and a L value expression.
 
+---
+# Terms
+- early/static binding
+- late/dynamic binding
+- inheritance
+- type-cast operator
+- type-conversion
+- static_cast
+- const_cast
+- reinterpret_cast
+- dynamic_cast
+- down-cast
 ---
 Return: [[00_Course_Files]]

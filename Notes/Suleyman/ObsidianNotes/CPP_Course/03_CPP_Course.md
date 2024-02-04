@@ -87,9 +87,9 @@ int* const ptr = &x;
 
 That make easier to writing and ensures the compliance with C++ tools like operator overloading.
 
-L value references can't point to another object after initial value. That means L value references corresponds to const top level pointers and means address that <mark style="background: #FFF3A3A6;"> L value references pointed can't be changed</mark>.
+L value references can't point to another object after initial value. That means L value references corresponds to const top level pointers and means address that  L value references pointed can't be changed.
 
-<mark style="background: #FFF3A3A6;">All initialize methods can be used with  L value reference syntax</mark>. (Except default initialization) For example:
+All initialize methods can be used with  L value reference syntax. (<mark style="background: #FFF3A3A6;">Except default initialization</mark>) For example:
 ```cpp
 #include ‹iostream>
 
@@ -153,6 +153,20 @@ int main()
 
 	++ *r; // increment of x
 ｝
+```
+
+Look for following:
+```cpp
+int main()
+{
+  int a[20] {10, 12, 13};
+  int* &r = &(a[1]); // Syntax error: non-const lvalue reference to type 'int *' cannot bind to a temporary of type 'int *'
+
+  // But the following is legal
+  int a[20] {10, 12, 13};
+  int* ptr = &(a[1]);
+  int* &rr = ptr; // OK
+}
 ```
 
 <mark style="background: #FFF3A3A6;">There is no reference to reference as similar to pointer to pointer</mark>. For example:
@@ -333,6 +347,7 @@ int & const ref = x; // OK, but there is no meaning of it. It is same as int &re
 
 > [!note] Note: Strict Aliasing Rule
 > Rules of address types conversions. There are some legal rules. For example conversion to char* is legal both in C and C++ (with type conversion operator).
+> #Cpp_StrictAliasingRule
 
 ```c
 int main()
@@ -392,8 +407,8 @@ Most of the time pointer semantics and reference semantics are alternative each 
 > 1. There is pointer to pointer but there is no reference to reference.
 > 2. pointer array is possible but reference array is not possible. There is no such an  array that its members are references. But this need solved with <mark style="background: #BBFABBA6;">std::reference_wrapper</mark> class of C++ standard library. We will loot it later.
 > 3. There is nullptr, but there is no null reference. This means if we use nullptr with pointers there is no corresponding here to references.
-> 4. We can assign another address to a pointer, if the pointer is not top level pointer. But we cannot change a reference. That means references is not <mark style="background: #BBFABBA6;">rebindable</mark>. Bu we can use std::reference_wrapper object instead of that.
-> 5. A reference is corresponds the top level pointer. Because the references must be initialized and we cannot change where it points later on.
+> 4. We can assign another address to a pointer, if the pointer is not top level const pointer. But we cannot change a reference. That means references is not <mark style="background: #BBFABBA6;">rebindable</mark>. Bu we can use std::reference_wrapper object instead of that.
+> 5. A reference is corresponds the top level const pointer. Because the references must be initialized and we cannot change where it points later on.
 > 6. Pointers can be default initialized but references not.
 
 Let expanse upper bullets little bit:
@@ -465,7 +480,7 @@ int main()
 }
 ```
 
-## R Value Reference
+# R Value Reference
 Now we will briefly mention about R value references. We will mention it later in detail with move semantics and perfect forwarding. R value references came with modern C++.
 - We can initialize L value references with L value expressions.
 - We can initialize R value references with R value expressions.
@@ -473,11 +488,11 @@ Now we will briefly mention about R value references. We will mention it later i
 - An R value reference must be initialized. (Same as L value reference)
 R value references can be created with <mark style="background: #FFF3A3A6;">&& declarator</mark>.
 ```cpp
-int&& r = 10;
+int&& r = 10; // r is a R value reference
 ```
 <mark style="background: #FFF3A3A6;">R value references must be initialized with an R value expression. If we try to initialize it with an L value expression, it would be a syntax error.</mark>
 
-## Expression's Value Category
+# Expression's Value Category
 #Cpp_ValueCategory 
 Which expression is L value and which expression is R value:
 1. If an expression is exist of an variable name than it is a L value (only name).
@@ -512,7 +527,7 @@ int main
 	pvcat (++x); // L value because of pre increment operator
 	pvcat (x++); // PR value because of post incemetn operator 
 	pvcat (--x); // L value because of pre decrement operator
-	pvcat（X--); // PR value because of pre decremetn operator
+	pvcat (X--); // PR value because of pre decremetn operator
 	pvcat ((x, y)); // L value because right handside of coma is a L value
 	pvcat(x = 5); // L value because of assignment operator
 	pvcat (x += 5); // L value because of assignment operator
@@ -531,7 +546,7 @@ int main()
 {
 	int x = 10;
 	
-	int &r1 = ++Х; // OK. ++x is a L value
+	int &r1 = ++x; // OK. ++x is a L value
 	int &r2 = x++; // syntax ERROR. x++ is not a L value (PR value)
 	int &&r2 = --x; // syntax ERROR. --x is not a R value (L value)
 
@@ -604,7 +619,7 @@ auto &&x = expr; // This is not a R value referance. This is forwarding referenc
 
 If auto keyword is used with && like <mark style="background: #D2B3FFA6;">auto &&x = expr;</mark> this means <mark style="background: #BBFABBA6;">forwarding reference</mark>, not the R value reference. Or it named <mark style="background: #BBFABBA6;">universal reference</mark>. We will learn it later.
 For now, we will be focusing first two one.
-## auto x = expr; 
+## auto x = expression; 
 auto works an placeholder. That means the compiler puts a type in place of auto.
 
 <mark style="background: #FFF3A3A6;">What rules are implemented to determine which type is replaced the auto keyword?</mark>
@@ -627,7 +642,7 @@ int main()
 {
 	char c ='A';
 	
-	auto x1 = c;
+	auto x1 = c; // Type of x1 is char 
 	auto x2 = +c; // Type of x2 is integer, beceuse there are integral promotion rule 
 }
 ```
@@ -672,7 +687,6 @@ int main()
 }
 ```
 
-
 ### Const differs with address types
 
 ```cpp
@@ -697,12 +711,12 @@ Look to the below code. What is the deducted type with second auto?
 int main()
 {
 	int a[] = {1, 2, 3 };
-	auto b = a; // type of b is int* , array decay
+	auto b = a; // type of b is "int*" , array decay
 
 //---------
 
 	const int a[] = {1, 2, 3 };
-	auto b = a; // type of b is const int* , array decay
+	auto b = a; // type of b is "const int*" , array decay
 }
 ```
 
@@ -711,11 +725,11 @@ We expect the deducted type "int \*" because "const" is ignored. But the deducte
 ```cpp
  int main()  
 {
-	auto x = "mesut" ; // type of x is const char *
+	auto x = "mesut" ; // type of x is "const char *"
 }
 ```
 
-Q: Is the following a function re-declaration?
+Q: Is the following a function redeclaration?
 A: Yes, this is a function re-declaration. If the parameter is not a pointer, there is no difference if the argument is const or not.
 ```cpp
 void func(int a);
@@ -745,22 +759,20 @@ void func(int* const p);
 ```cpp
 // Following is not a function redecleration. They are the decleration of different functions
 void func(int* p);
-void func(const int*);
+void func(const int* p);
 
 // Following code is a function redecleration. They are redecleration of same functions
 void func(int* p);
 void func(int* const p);
 ```
 
-
-
 ```cpp
 int foo(int);
 
 int main()
 {
-	auto x = foo; // type of x is int (*)(int), it is a decay
-	auto y = &foo; // type of x is int (*)(int)
+	auto x = foo; // type of x is "int (*)(int)", it is a decay
+	auto y = &foo; // type of x is "int (*)(int)"
 	// Type of x and y are same
 }
 ```
@@ -769,53 +781,50 @@ int main()
 int main()  
 {  
 	int a[10][20];  
-	auto x = a; //type of x int (*)[20], array decay
-	// Type of the first member of the a is int[20], so array decay of a is int (*)[20]
+	auto x = a; // Type of x "int (*)[20]", array decay
+	// Type of the first member of the a is "int[20]", so array decay of a is "int (*)[20]"
 }
 ```
 
-## auto & = expr;
+## auto & = expression;
 
 ### Const difference
-
+Const is not ignored with "auto&", and this is different form "auto".
 Const difference between auto and auto&:
 ```cpp
 int main()
 {
 	const int ival{};
-	auto x = ival;
+	auto x = ival; // Type of x is "int", const is ignored
 
 //--------
 
 	int ival{};
-	auto &x = ival;
+	auto &x = ival; // Type of x is "int&" and deducted type with auto is "int"
 
 //--------
 
 	const int ival{};
-	auto &x = ival; // const int &x = ival;
+	auto &x = ival; // Type of x is "const int&", and deducted type with auto is "const int". The expression is same as "const int &x = ival;"
 }
 ```
 
 In upper example,
-<mark style="background: #FFF3A3A6;">At first example, const was being ignored. Type of x is int.</mark>
-<mark style="background: #FFF3A3A6;">At second example, type of auto and type of x are differ. type of auto is int and type of x is int&. </mark> 
-<mark style="background: #FFF3A3A6;">At third example, type of auto is const int and type of x is const int&. </mark>
-<mark style="background: #FFF3A3A6;">So, with auto& const is not ignored.</mark>
-
+At first example, const was being ignored. Type of x is int.
+At second example, type of auto and type of x are differ. type of auto is int and type of x is int&.  
+At third example, type of auto is const int and type of x is const int&. 
+So, with auto& const is not ignored.
 ### Array decay difference
-array decay difference between auto and auto&
-
+array decay difference between "auto" and "auto&":
 ```cpp
 int main()
 {
 	int a[10]{};
-	auto &x = a; // int (&x)[10], auto -> int[10], x -> int (&x)[10]
+	auto &x = a; // int (&x)[10], auto -> int[10], x -> int (&)[10]
 	// int (&x)[10] = a;
 ｝
 ```
-
-In upper example, the deducted type that corresponds to the auto is int[10].  x is reference to that type
+In upper example, the deducted type that corresponds to the auto is "int\[10\]".  x is reference to that type: "int (&)\[10\]"
 
 ```cpp
 int main()
@@ -824,20 +833,20 @@ int main()
 	// cosnt char (&r)[6] = "hello";
 }
 ```
-So with auto& there is no array decay, but with auto there is.
+So with "auto&" there is no array decay, but with "auto" there is.
 
 ### pointer reference difference
-pointer reference difference between auto and auto&
+pointer reference difference between "auto" and "auto&".
 ```cpp
 void foo(int);
 
 int main)
 {
 	//auto f1 = foo;
-	void (*f1)(int) = foo; // The deducted type for auto is:  void (*)(int)
+	void (*f1)(int) = foo; // The deducted type for auto is:  "void (*)(int)"
 	
 	//auto &f2 = foo;
-	void (&f2)(int) = foo; // The decucted tyep for auto is: void (int), type of f2 is: void (&)(int)
+	void (&f2)(int) = foo; // The decucted tyep for auto is: "void (int)", type of f2 is: "void (&)(int)"
 }
 ```
 
@@ -856,8 +865,8 @@ In below example, type of p1 and p2 is same
 int main()
 {
 	int x = 10;
-	auto p1 = &x; // auto = int*
-	auto *p2 = &x; // auto = int, p1 = int*
+	auto p1 = &x; // auto = "int*"
+	auto *p2 = &x; // auto = "int", p1 = "int*"
 }
 ```
 
@@ -866,7 +875,7 @@ In below example, const qualifies the name (p2), and that means it is a top leve
 int main()
 {
 	int x = 10;
-	const auto p2 = &x; // p2 = int * const , top level const pointer
+	const auto p2 = &x; // p2 = "int * const" , top level const pointer
 }
 ```
 

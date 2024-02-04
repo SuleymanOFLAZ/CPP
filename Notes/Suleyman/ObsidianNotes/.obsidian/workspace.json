@@ -4,11 +4,23 @@
     "type": "split",
     "children": [
       {
-        "id": "48b0ae2e033e7f38",
+        "id": "f20f4b9ddc081f6a",
         "type": "tabs",
         "children": [
           {
-            "id": "9f6312ae937a7ccd",
+            "id": "efe1c247f676b69b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "CPP_Course/Additional_Notes/Look_Later_Subjects.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "ea4c9072626f39ab",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -18,8 +30,21 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "4660c2985f858d1e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "CPP_Course/05_CPP_Course.md",
+                "mode": "source",
+                "source": false
+              }
+            }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -85,7 +110,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "CPP_Course/04_CPP_Course.md",
+                "file": "CPP_Course/05_CPP_Course.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +127,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "CPP_Course/04_CPP_Course.md",
+                "file": "CPP_Course/05_CPP_Course.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +150,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "CPP_Course/04_CPP_Course.md"
+                "file": "CPP_Course/05_CPP_Course.md"
               }
             }
           },
@@ -160,18 +185,20 @@
       "obsidian-excalidraw-plugin:Create new drawing": false
     }
   },
-  "active": "9f6312ae937a7ccd",
+  "active": "4660c2985f858d1e",
   "lastOpenFiles": [
-    "Home.md",
     "CPP_Course/04_CPP_Course.md",
-    "CPP_Course/03_CPP_Course.md",
+    "CPP_Course/Additional_Notes/Look_Later_Subjects.md",
     "CPP_Course/05_CPP_Course.md",
+    "CPP_Course/03_CPP_Course.md",
+    "CPP_Course/00_Course_Files.md",
     "CPP_Course/02_CPP_Course.md",
     "CPP_Course/01_CPP_Course.md",
+    "Untitled.md",
+    "Home.md",
     "Images/CppValueCategories.png",
     "Images",
     "Notes.md",
-    "CPP_Course/Additional_Notes/Look_Later_Subjects.md",
     "Programming/Sort Algorithms/Selection Sort.md",
     "Programming/Sort Algorithms/Radix Sort.md",
     "Programming/Sort Algorithms/Merge Sort.md",
@@ -182,14 +209,12 @@
     "C Notes/Data Structures.md",
     "C Notes/Algorithms.md",
     "Untitled.canvas",
-    "Untitled.md",
     "Untitled 1.md",
     "Interview Qustions/Question 1.md",
     "Interview Qustions/All Questions.md",
     "CPP_Topics/RAII (Resource Acquisition Is Initialization).md",
     "CPP_Course/Course_Drawings/Value_Category.md",
     "CPP_Course/08_CPP_Course.md",
-    "CPP_Course/00_Course_Files.md",
     "CPP_Course/09_CPP_Course.md",
     "CPP_Course/Additional_Notes",
     "CPP_Course/Course_Drawings",

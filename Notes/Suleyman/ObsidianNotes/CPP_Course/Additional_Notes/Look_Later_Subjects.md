@@ -7,8 +7,9 @@
 - There some exception situations between initialize method in case of auto
 - Forwarding reference (universal reference)
 - Conditions to ensure a constexpr function
-- user defined conversion
+- user defined conversion (conversion constructor)
 - Why "NULL" is not prefered to use instead of "0" before modern C++?
+- Dynamic cast
 # Topics that needed to be look
 - Most Vexing Parse
 - AAA: Almost Always Auto
@@ -17,3 +18,4 @@
 - Strict aliasing rule
 - Integral Promotion
 - literal type
+- temporart objects

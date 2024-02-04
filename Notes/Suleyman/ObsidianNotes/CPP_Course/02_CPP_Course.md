@@ -54,6 +54,7 @@ int main()
 }
 ```
 #Cpp_Interview_Question
+#Cpp_MostVexingParse
 
 There are two meaning of upper code:
 1. Create B object and give A object to constructor
@@ -126,7 +127,7 @@ Arrays is a type of <mark style="background: #BBFABBA6;">aggregate types</mark>.
 
 <mark style="background: #ADCCFFA6;">Auto type deduction</mark>: Auto is a keyword and differ in meaning in C++ over C. Modern C++ overload the meaning of auto in C. (With the C++11 standard)
 
-In C++, keyword are overloaded in context of language. This means a keyword has different meaning depending on which context it used. Some of the example of overloaded keywords are auto and using. This is because to make easy the compiler work. Because each keyword is a token to compiler. In the same time this situation makes harder to learn the language.
+In C++, keyword are overloaded in context of language. This means a keyword has different meaning depending on which context it used. Some of the example of overloaded keywords are "auto" and "using". This is because to make easy the compiler work. Because each keyword is a token to compiler. In the same time, this situation makes harder to learn the language.
 
 Auto: means in basic way, the variable type is same as the initialize type. For example: <mark style="background: #D2B3FFA6;">auto x = 10;</mark> makes the type of x integer. Actually this is not simple as that but we will detailed it later.
 
@@ -276,7 +277,7 @@ namespace Time_
 	int x = 0;
 }
 ```
-Note that there is no ; after curly brace. If we write it, this won't be syntax error, but it would be an empty statement in global scope 
+Note that there is no ";" after curly brace. If we write it, this won't be syntax error, but it would be an empty statement in global scope 
 
 <mark style="background: #FFF3A3A6;">Unary ::</mark> operator means to look for the name in global scope. In other sense, it is way to say don't look this name inside nested scope or local scope. In C, we don't an operator that is corresponds that meaning.
 ```cpp
