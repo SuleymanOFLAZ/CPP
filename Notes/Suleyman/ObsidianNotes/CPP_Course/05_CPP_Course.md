@@ -53,18 +53,20 @@ double d = (double)sum/cnt;
 ## Const Cast
 The type conversion from a const object's address to non-const object's address. Keep caution on this, most of the time const conversion lead undefined behavior. For example:
 ```cpp
+const int x = 10;
+
 int main()
 {
-	const int x = 10;
 	int* p = &x; // Syntax error in C++, but warning in C (undefined behavior).
 }
 ```
 Upper code is syntax error in C++. There is no type conversion from const int* to int*. But the compiler warn us in C, not a syntax error. 
 We can prevent the error with type cast. But that doesn't mean this is true. Actually this is very dangerous, because it can lead to undefined behavior in case of we try to change the object.
 ```cpp
+const int x = 10;
+
 int main()
 {
-	const int x = 10;
 	int* p = (int*)&x; // Not syntax error because of the type cast
 	*p = 55; // Undefined behavior
 }
@@ -188,33 +190,61 @@ int main()
 ```
 
 # Implicit type conversion on C++
+#Cpp_ImplicitTypeConversions
 
-1. Integer -> Real
-2. Real -> Integer
-3. Bidirectional conversion between int, long int, long long int, short, char, float, double, long double 
-4. There is implicit type conversion between addresses.
-5. T -> const T
-6. T* -> void*
-7. There is no implicit type conversion void* to T*
-8. enum (enum class) -> arithmetic
-9. There is no implicit type conversion from arithmetic to enum
+1. There is bidirectional implicit type conversion between integer number types and real number types. And also there is bidirectional implicit type conversion between integer types. And also there is bidirectional implicit type conversion between real types. That means there is bidirectional conversion between int, long int, long long int, short, char, float, double, long double 
+4. There is NOT implicit type conversion between different address types.
+5. There is NOT implicit type conversion between const object address to non-const object address. (const T\* -> T\*).
+6. There is implicit type conversion between const object address to non-const object address. (T\* -> const T\*).
+7. There is implicit type conversion from "T*" -> "void*"
+8. There is NOT implicit type conversion form "void*" to "T*"
+9. There is implicit type conversion from enum types to arithmetic types.
+10. There is NOT implicit type conversion from arithmetic types to enum types.
+11. There is NOT implicit type conversion between enum types.
+12. There is NOT implicit type conversion from enum class types to arithmetic types.
 
 # Scoped enum
-Scoped enum (enum class) added to the language with modern C++. This is not related to classes, this is only keyword. 
+#Cpp_enumClass
+Scoped enum (enum class) added to the language with modern C++. The "class" keyword can make some confusion but, "enum class" is not related to classes. 
 
-<mark style="background: #FFF3A3A6;">Problem with enums:</mark>
-1. Good things are: There are no implicit type conversion from arithmetic types to enum and here is not implicit type conversion between enums. But the bad things is: There is implicit type conversion from enum types to arithmetic types.
-2. Each enum type has a <mark style="background: #BBFABBA6;">underlying type</mark>. Enum types are a integer type. The underlying type of enum type must be int in C. But in C++, the compiler determines enum's underlying type. This comes from before modern C++. Underlying type can be an integer and can be int as smaller. So int, unsigned int, long int, long long int etc. The bad thing is we must use 4 bytes at least for an enum and this is a memory problem. The second problem is the portability of program is effected by this design because the underlying type can be differ between compilers.
-3. The enum size not know is a enum declared like that: <mark style="background: #D2B3FFA6;">enum Color;</mark>. Why we do this, because we don't want to include the header file that Color is declared. Because including more header file means dependency is increased. So, the compiler doesn't know the size of Color and that situation would syntax error. Enum is a incomplete type in C++. This is not an issue in C, because the underlying type of enum is int, that means enum is a complete type in C.
-4. Enumerators of all enums considered in same scope. So we cannot define same enumerator name in different enums.
+Why enum class exist while enum exist?
+Let's look at problems with enum:
+1. The good thing with enum, there is not implicit type conversion from arithmetic types to enum and there is not implicit type conversion between enums. But the bad things is there is implicit type conversion from enum types to arithmetic types.
+2. Each enum type has a <mark style="background: #BBFABBA6;">underlying type</mark>. Enum types are actually integer types. The underlying type of enum is int in C and, can't be another type. But in C++, the compiler determines enum's underlying type depending on values of the enumerators. This comes from before modern C++, so the underlying type doesn't have to be int in C++. Underlying type can be an integer and cannot be a smaller integer type (For example, the underlying type cannot be short or char). But, it can be int, unsigned int, long int, long long int etc. The bad thing is we must use 4 bytes(in assumption that int is 4 byte) at least for an enum and this is a memory problem. And the second problem is that brings portability issues too. The portability of program is effected by this design because the underlying type can be differ between compilers.
+3. Enum is a incomplete type in C++. This is not an issue in C, because the underlying type of enum is int, that means enum is a complete type in C.
+4. The enumerators of all enums that declared in same scope considered in same scope. So we cannot define same enumerator name in different enums. Think about, same enumerators are included with different headers, this would be a big problem.
 
-<mark style="background: #ADCCFFA6;">Complete Type and Incomplete type</mark>: A C topic. If size of a type is not known the type is a incomplete type.
+> [!note] Note: Complete Type and Incomplete Type
+> A C topic. If size of a type is not known the type is a incomplete type.
 
-<mark style="background: #FFF3A3A6;">Modern C++ added enum class and added some syntax features to enums.</mark>
+```cpp
+enum Color; // Just decleration, not definition
 
-# enum class
+int main()
+{
+	Color mycolor; // Syntax error in C++, but OK in C.
+}
+```
+Upper code is a syntax error in C++ because, the compiler doesn't know the size of the enum. This is "<mark style="background: #BBFABBA6;">incomplete type</mark>" in C++. But, the syntax is not  error in C because, the compiler knows the size, it must be int. So, this is a "<mark style="background: #BBFABBA6;">complete type</mark>" in C.
+
+Let's think about a situation. Our enum definition is inside a header file. We don't want to include that header instead, we want to make forward declaration of the enum
+```cpp
+// file.h // We don't include the header
+enum Color; // Forward declaration
+
+struct Data {
+	Color ncolor;
+};
+
+```
+But this causes syntax error because, because elements of the "struct Data" must be complete type (size of them must be known) to calculate the struct's size. 
+This is a very bad situation. Because we must include the header file that contains the definition of "enum Color" to know it's size. Dependency decreases that much how much less header file included.
+If the underlying type of the enum is known, the need to add the header file would be eliminated.
+
+So the "enum class" added to the language with modern C++ to cover these problems. And also added some syntax features to enums, too.
+## enum class
 Differences of enum class:
-1. <mark style="background: #FFF3A3A6;">Underlying type can be stated directly with syntax</mark>. If we didn't state the underlying type, it is be int by default. That solves the problems that we mentioned. <mark style="background: #FFF3A3A6;">This feature added to classical enums too</mark>, not only to enum classes.
+1. Underlying type can be stated directly with syntax. If we didn't state the underlying type, it is be int by default. That means underlying type of the enum classes is not determined by the compiler anymore. That solves the problems that we mentioned about forward declaration. And we can determine underlying type of the enum class types as smaller integer types such as char, short, unsigned short etc. Underlying determine feature is also added to the classical enums too, not only to enum classes. This solves forward declaration for classical enums, too. This also solves the portability issues.
 ```cpp
 enum class Color {red, blue, green}; // underlying type: default int
 ----
@@ -233,7 +263,7 @@ enum class Color {red, blue, green};
 Color mycolor = red; // Syntax error.
 Color mycolor = Color::red; // We used binary resolution operator
 ```
-Writing that resolution operator makes the code hard to read. <mark style="background: #FFF3A3A6;">In C++20, a new feature is added to the language</mark>: <mark style="background: #FFF3A3A6;">We can use the enum class without resolution operator</mark>, if we declare a special using declaration. The enum can be used without resolution operator in the scope of the using declaration: <mark style="background: #D2B3FFA6;">using enum Enum_Name;</mark>. Or we can use only one enumerator without specifying the resolution operator in the scope of the using declaration: <mark style="background: #D2B3FFA6;">using Color::blue;</mark> This syntax is following:
+Writing that resolution operator makes the code hard to read. In C++20, a new feature is added to the language. We can use the enum class without resolution operator, if we declare a special using declaration. The enum can be used without resolution operator in the scope of the using declaration: <mark style="background: #D2B3FFA6;">using enum Enum_Name;</mark>. Or we can use only one enumerator without specifying the resolution operator in the scope of the using declaration: <mark style="background: #D2B3FFA6;">using Color::blue;</mark>.
 ```cpp
 enum class Color {red, blue, green};
 
@@ -248,18 +278,18 @@ int main()
 }
 ```
 
-<mark style="background: #FFB8EBA6;">Note</mark>: There are using keywords that corresponds to different meanings. We look through them later. 
+> [!note] Note: About "using" keyword
+There are using keywords that corresponds to different meanings. The keyword is one of the most overloaded keyword. We look through them later. 
 
-3. <mark style="background: #FFF3A3A6;">There are not implicit type conversion from enum classes to arithmetic types.</mark>
+3. There is NOT implicit type conversion from enum classes to arithmetic types.
 
-
-The added features to the classical enums with modern C++:
-1. specifying the underlying type
-2. We can use classical enums with the resolution operator just like enum classes. This is not a effect, it is added for just to make the syntax same.
+**The added features to the classical enums with modern C++**:
+1. Specifying the underlying type of the classical enums, too.
+2. We can use classical enums with the resolution operator just like enum classes. This is not has a effect, it is added for just to make the syntax same. (For example: "auto x = Color::red", Color is a classical enum)
 
 <mark style="background: #FFF3A3A6;">Use the enum classes if there is no special situation to use the classical enums.</mark>
 
-<mark style="background: #FFF3A3A6;">Enum classes are not a class type.</mark> The can test that with following syntax, and note that is_class_v<> is a <mark style="background: #BBFABBA6;">compile-time literal</mark>, included with <mark style="background: #BBFABBA6;">type_traits</mark>, and we will look them in detail later:
+<mark style="background: #FFF3A3A6;">Enum classes are not a class type.</mark> The can test that with following syntax, and note that "is_class_v<>" is a <mark style="background: #BBFABBA6;">compile-time library</mark>, included with <mark style="background: #BBFABBA6;">type_traits</mark>, and we will look them in detail later:
 
 ```cpp
 #include < type_traits>
@@ -275,9 +305,11 @@ int main()
 }
 ```
 
-# decltype specifier/operator
-Type deduction was exist before modern C++. But, type deduction is only exist on usage of templates. Modern C++ spread the type deduction on most of the language and add new type deduction tools. One of them is auto keyword, and we look it a little bit. The another one is the <mark style="background: #BBFABBA6;">decltype specifier</mark>. Auto and decltype are  completely different tools.
-We use auto on a variable and initialize a variable to deduct the type. But usage of decltype is different and not related to initialization. <mark style="background: #FFF3A3A6;">decltype is a keyword and we write a expression between parentheses after the keyword and that syntax corresponds to a type and we can use that syntax everywhere that we use a type.</mark> <mark style="background: #FFF3A3A6;">The type deduction is done at compile time with decltype</mark>. There is no obligation to initialize or declare a variable with decltype.
+# decltype Specifier/Operator
+#Cpp_decltype
+Type deduction was exist before modern C++. But, type deduction is only exist on usage of templates. Modern C++ spread the type deduction on most of the language and add new type deduction tools. One of them is auto keyword, and we look it a little bit. The another one is the <mark style="background: #BBFABBA6;">decltype specifier</mark>. Auto and decltype are completely different tools.
+We use auto on a variable to deduct it's type. Auto detect the type depending on the type of the object that we used the initialize the deducted variable. This one kind of the type deduction of the "auto", We mention others later. 
+But usage of decltype is different and not related to initialization. <mark style="background: #FFF3A3A6;">decltype is a keyword and we write a expression between parentheses after the keyword and that syntax corresponds to a type and we can use that syntax everywhere that we use a type.</mark> <mark style="background: #FFF3A3A6;">The type deduction is done at compile time with decltype</mark>. There is no obligation to initialize or declare a variable with decltype.
 
 ```cpp
 decltype(expr) foo(); // decltype(expr) corrensponds to the function return type
@@ -428,5 +460,11 @@ int main()
 - reinterpret_cast
 - dynamic_cast
 - down-cast
+- underlying type
+- complete type
+- incomplete type
+- enum class
+- forward declaration
+- decltype specifier
 ---
 Return: [[00_Course_Files]]
