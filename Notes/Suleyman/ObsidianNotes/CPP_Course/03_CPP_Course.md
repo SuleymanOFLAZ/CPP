@@ -520,23 +520,25 @@ int main
 	int a[120];
 	int&& r = 10;
 	
-	pvcat (x); // L value because it is a name
-	pvcat (10); // PR value because it is a literal
+	pvcat(x); // L value because it is a name
+	pvcat((x)); // L value
+	pvcat(10); // PR value because it is a literal
 	pvcat(x + 4); // PR value because it consist of an arithmetic operator
-	pvcat (a); // L value because it is a name
-	pvcat (++x); // L value because of pre increment operator
-	pvcat (x++); // PR value because of post incemetn operator 
-	pvcat (--x); // L value because of pre decrement operator
-	pvcat (X--); // PR value because of pre decremetn operator
-	pvcat ((x, y)); // L value because right handside of coma is a L value
+	pvcat(a); // L value because it is a name
+	pvcat(a[3]); // L value
+	pvcat(++x); // L value because of pre increment operator
+	pvcat(x++); // PR value because of post incemetn operator 
+	pvcat(--x); // L value because of pre decrement operator
+	pvcat(X--); // PR value because of pre decremetn operator
+	pvcat((x, y)); // L value because right handside of coma is a L value
 	pvcat(x = 5); // L value because of assignment operator
 	pvcat (x += 5); // L value because of assignment operator
-	pvcat (foo()); // PR value because function doesn't return a reference
-	pvcat (func()); // L value because function returns an L value referenca
-	pvcat (bar()); // X value because function returns an R value reference
+	pvcat(foo()); // PR value because function doesn't return a reference
+	pvcat(func()); // L value because function returns an L value referenca
+	pvcat(bar()); // X value because function returns an R value reference
 	pvcat(r); // L value because r is a name
-	pvcat (foo); // L value because foo is a function name
-	pvcat (nullptr); // PR value because nullptr is a literal
+	pvcat(foo); // L value because foo is a function name
+	pvcat(nullptr); // PR value because nullptr is a literal
 }
 ```
 

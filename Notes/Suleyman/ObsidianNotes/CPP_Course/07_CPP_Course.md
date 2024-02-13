@@ -1,131 +1,219 @@
 [[00_Course_Files]]
 #Cpp_Course 
-A class is a definition that describes how can we use that type. We create objects that suits that definition. Instantiate means creating objects that suits that definition. The object that consisted in end of this process is an instance.
+The existence that is created with using a class definition is called "**object**" or "**instance**". Creating act that object is called "**instantiate**".
+
+A class is a definition that describes how can we use that type. We create objects that suits class definition. Instantiate means creating objects that suits that definition. The object that consisted in end of this process is an instance.
+
 So we can consider following expressions are same: class object, class variable, class instance.
-
 # const member functions
-const keyword is one of the most important keyword of the C++ programming language. One of the quality measurement of a programs is the usage of the const keyword in places that needed a const keyword. This is described with a term, that is <mark style="background: #BBFABBA6;">const correctness</mark>.
+#Cpp_constMemberFunctions
+const keyword is one of the most important keyword of the C++ programming language. One of the quality measurement of a program is the usage of the const keyword in places that needed a const keyword. This is described with  "**const correctness**" term.
 
->[!term] Term: Const Correctness
->Const correctness means that the object that need to be const must be const.
+> [!note] Note:  Const Correctness
+>Const correctness means that the object that needs to be const must be const.
 
-The presences are divided in to two categories depending on the changeable. These categories are:
-1. <mark style="background: #BBFABBA6;">Mutable</mark>: Variables that their values can change
-2. <mark style="background: #BBFABBA6;">Immutable</mark>: Variables that their values cannot be changed.
+The objects are divided in to two categories depending on the changeable. These categories are:
+1. **Mutable**: Variables that their values can be changed.
+2. **Immutable**: Variables that their values cannot be changed.
 
-There are a lot of benefit of using immutable objects such as the compiler can make better optimization, there isn't a synchronization need in parallel programming.
+> [!note] Note: Advantages of using immutable objects
+> There are several advantages of using immutable objects. Some of these:
+> - Compiler can do better optimization
+> - No need to synchronization in parallel programming
 
-Do a non-static member function change the object? How would we know this? Because the first parameter (an address to object itself) is a hidden parameter. Ho can i know a non-static member function is a accessor or a mutator? <mark style="background: #FFB86CA6;">We declare a member function that the hidden parameter of the function is a const with a const keyword after the function parentheses</mark>. We call that functions as <mark style="background: #BBFABBA6;">const member functions</mark>, and we call the function that declared without const keyword as <mark style="background: #BBFABBA6;">non-const member function</mark>.
+---
+Can a non-static member function change the object? How would we know this? Remember the first parameter (an address to object itself) is a hidden parameter. Ho can we know a non-static member function is a accessor or a mutator? We declare a member function that the hidden parameter of the function is a const with a const keyword after the function parentheses. We call that function as **const member function**, and we call the function that declared without const keyword as **non-const member function**.
 
->[!example] Syntax Example: Const member function
->```cpp
->class Myclass{
->public:
->	void func(int, int); // non-const member function
->	void foo(int) const; // const member function
->}
->``` 
+```cpp
+class Myclass{
+public:
+	void func(int, int); // non-const member function
+	void foo(int) const; // const member function
+};
+``` 
 
-<mark style="background: #FFB86CA6;">We must ask that question first is this member function is a accessor or mutator when we are creation a public interface of a class</mark>. If the member function don't created for changing the object than we must declare it with const keyword.
+> [!note] Note: The First thing we should pat attention when we are creating a public inter face
+We must ask that question first is this member function is a accessor or mutator when we are creation a public interface of a class. If the member function don't created for changing the object than we must declare it with const keyword.
 
-> [!attention] Attention
+> [!note] Note: 
 >The const keyword of a member function is actually qualifying the hidden object address parameter. For example:
->```cpp
->void foo(int) const;
->// Means
->void foo(const Myclass*, int);
->```
-><mark style="background: #FFB86CA6;">So, the const qualifier is only for the object that called.</mark>
+```cpp
+class Myclass{
+	public:
+	void foo(int) const;
+	// Means
+	void foo(const Myclass*, int); // This is a representation, "const Myclass*" is the hidden parameter.
+};
+```
 
-So a non-static member function can be either a const member function or a non-const member function.
+A non-static member function can be either a const member function or a non-const member function.
 
-The compiler throws syntax error, if we declare a const member function but define a non-const member function, or vice versa. That means a const member function and a non-const member function are totally different from each other. <mark style="background: #FFB86CA6;">A const member function cannot change any class non-static data member. This would be a syntax error</mark>.
+Compiler controls for const member functions
 
->[!caution] Caution: const only qualifies the object itself.
+> [!warning]  Warning: The declaration and the definition of a const member function must contain the "const" keyword
+The compiler throws syntax error, if we declare a const member function but we give a non-const member function for its definition, or vice versa. That means a const member function and a non-const member function are totally different from each other. 
+
+```cpp
+// Myclass.h
+class Myclass{
+	public:
+	void foo(int) const;
+};
+
+// Myclass.cpp
+void Myclass::foo(int) // Syntax ERROR. Because the "foo" declared as const.
+{
+
+}
+```
+
+> [!warning]  Warning:  A const member function cannot change a non-static data member of the class.
+> A const member function cannot change any class non-static data member. If the function tries to change, this would be a syntax error.
+
+```cpp
+// Myclass.h
+class Myclass{
+public:
+	void foo(int) const;
+private:
+	int mx;
+};
+
+// Myclass.cpp
+void Myclass::foo(int) const // Syntax ERROR. Because the "foo" declared as const.
+{
+	mx = 45; // Syntax ERROR.
+	this->mx = 45; // Same as this syntax. We cannot change the data of low-level const pointer.
+
+}
+```
+
+> [!warning]  Warning: const only qualifies the object itself.
 >The const keyword in a member function declaration is only qualifies the called object address. So following syntax would be legal:
->```cpp
->void Myclass::foo() const
->{
->	Myclass m;
->	m.mx = 20; // OK, another object's mx, not the object's mx that passed as hidden function parameter.
->}
->```
+```cpp
+// Myclass.h
+class Myclass{
+public:
+	void foo(int) const;
+private:
+	int mx;
+};
 
->[!caution] Caution: a cont member function shouldn't call a non-const member function
-> -> <mark style="background: #FFB86CA6;">A non-const member function of the class can invoke a const member function of the class</mark>.
-> -> <mark style="background: #FFB86CA6;">A const member function of the class cannot invoke a non-const member function of the class</mark>.
-> This is because there isn't implicit type conversion from const T\* to T\* in C++. Let's explain. First look the syntax of how a member function calls another member function of the same class.
-> ```cpp
-> class Myclass {
-> public:
-> 	void foo() const;
-> 	void func();
-> };
->
->void Myclass::func()
->{
->	foo(); // This is OK. There is implicit type conversion from T* to const T*
->}
->
->void Myclass::foo()
->{
->	func(); // Syntax ERROR. There is no implicit type conversion from const T* to T*
->}
->```
->To understand that we need to look verbose syntax (C style) of the member function call. The compiler searches the function name in case of a function call in according to rules that we mentioned. When it find the function as non-static member function than calls that function with hidden pointer of itself. That a non-static member function calls another non-static member function for the object (hidden object address) that which itself called for.
->```cpp
->void foo(const Myclass*);
->
->void func(Myclass* p)
->{
->	foo(p);
->}
->```
+// Myclass.cpp
+void Myclass::foo() const
+{
+	Myclass m;
+	m.mx = 20; // OK. "m" is a different object. "const" only qualifies the "this" pointer.
+}
+```
 
->[!Caution] Caution: A non-const member function shouldn't called for a const object
+> [!warning]  Warning:  A const member function shouldn't call a non-const member function
+> -> A non-const member function of the class can invoke a const member function of the class.
+> -> A const member function of the class cannot invoke a non-const member function of the class.
+> This is because there isn't implicit type conversion from "const T\*" to "T\*". Let's explain. First look the syntax of how a member function calls another member function of the same class.
+```cpp
+// Myclass.h
+class Myclass {
+public:
+	void foo() const;
+	void func();
+};
+
+// Myclass.cpp
+void Myclass::func()
+{
+	foo(); // This is OK. There is implicit type conversion from "T*" to "const T*".
+}
+
+void Myclass::foo()
+{
+	func(); // Syntax ERROR. There is no implicit type conversion from "const T*" to "T*"
+}
+```
+To understand that we need to look verbose syntax (C style) of the member function call. The compiler searches the function name in case of a function call in according to rules that we mentioned. When it find the function as non-static member function than calls that function with hidden pointer of itself. That a non-static member function calls another non-static member function for the object (hidden object address) that which itself called for.
+```cpp
+void foo(const Myclass*);
+
+void func(Myclass* p)
+{
+	foo(p); // OK. But vice versa would be the syntax error. 
+}
+```
+
+> [!warning]  Warning: A non-const member function shouldn't called for a const object
 >What if we call a non-const member function for a const object. This would be a syntax error.
->```cpp
-> class Myclass {
-> public:
-> 	void accessor() const;
-> 	void setter();
-> };
->
->void main()
->{
->	const Myclass cm;
->	cm.setter(); // Syntax ERROR. There isn't implicit type conversion from const T* to T*
->}
->```
->But of course if we call a const member function for non-const object that wouldn't be a syntax error. Because there is implicit type conversion from T\* to const T\*.
 
- We cannot call a non-const member function for a const class object. Of course this is general approach. We explained the base of the idea.
+```cpp
+ class Myclass {
+ public:
+ 	void accessor() const;
+ 	void setter();
+ };
 
->[!Caution] Caution: Chaining / Fluent API with a const member function
->Keep caution on that 'this' pointer is a low level const pointer if the non-static member function is a const function, and vice versa. In chaining syntax we would return '\*this' as reference syntax or 'this' as pointer syntax. So if the function is a const function, the return value of the function should be type of const of he object's address or reference. This is because, there is no implicit type conversion from const T\* yo T\*.
+void main()
+{
+	const Myclass cm;
+	cm.setter(); // Syntax ERROR. There isn't implicit type conversion from "const T*" to "T*".
+}
+```
+But of course if we call a const member function for non-const object that wouldn't be a syntax error. Because there is implicit type conversion from "T\*" to "const T\*".
 
->[!caution] Caution
->Following syntax is a const overloading.
->```cpp
->class Myclass {
->public:
->	void func()const;
->	void func();
->};
->```
->This syntax is widely used and used in standard library too. If the object is const than the only viable function is cost function. If the object not const than two functions is viable but non-const is called. If the non-const function not exist than the const function is called with a non-const object.
+> [!warning]  Warning: Chaining / Fluent API with a const member function
+>'this' pointer is a low level const pointer if the non-static member function is a const function, and vice versa. In chaining syntax, we would return '\*this' as reference syntax or 'this' as pointer syntax. So, if the function is a const function, the return value of the function should be type of const object address or reference. This is because, there is no implicit type conversion from 'const T\*' to 'T\*'.
 
->[!example] Example: Const overloading
-> A const overloading example: Vector's front and back functions are overloaded. So when we call for a const object that the syntax error is occur. Because if we call the function for a const object than the function with const return reference is called and assigning a const reference is syntax error. If we call the function for a non-const object than the non-const function is called and that is OK.
+```cpp
+// Myclass.h
+class Myclass {
+public:
+	Myclass& foo() const;
+};
+
+// Myclass.cpp
+Myclass& Myclass::func()
+{
+	return *this; // Syntax ERROR. 'this' is a low-level const poiner. So, there isn't implicit type conversion from "const T*" to "T*".
+}
+```
+This syntax error situation can be turned into a valid situation with followings:
+- Both the function and return type can be const 
+- Both the function and return type can be non-const.
+The situation is same in pointer syntax.
+
+> [!warning]  Warning: A const member function can be a const overload
+>Following syntax is a const overloading.  This syntax is widely used and used in standard library, too. If the object is const than the only viable function is cost function. If the object not const than two functions is viable but non-const is called. If the non-const function not exist than the const function is called with a non-const object.
+>Functions are chosen depending on the constness of the object that overloaded function is called for.
+```cpp
+class Myclass {
+public:
+	void func()const;
+	void func();
+};
+
+int main()
+{
+	Myclass m;
+	m.func(); // non-const member function is called.
+
+	Myclass cm;
+	cm.func(); // const member function is called.
+}
+```
+
+>[!example] Example: Const member function overloading in standard library
+>'front' and 'back' functions of the vector class are overloaded. If we call these functions with a const vector object, this wold be an error. But if we call these functions with a non-const vector object, this would be ok. But how the compiler knows we called these functions with a const object and throw an error? Because these functions have const overloading. If we call the function 'front' with a const object, the overload with const return type is chosen. So, the function returned a const object and we use it in left side of the assignment operator. That causes the error.
 
 ```cpp
 #include <vecto>
 int main
 {
-	const std::vector<int> vec{ 1, 2, 3, 5, 7 };
-	
-	vec.front () = 99;
-	vec.back() = 333;
+	std::vector<int> vec{ 1, 2, 3, 5, 7 };
+	const std::vector<int> vec2{ 1, 2, 3, 5, 7 };
+
+	vec.front() = 99; // OK. The object is a non-const
+	vec.back() = 333; // OK. The object is a non-const
+
+	vec2.front() = 99; // Syntax ERROR. The object is a const
+	vec2.back() = 333; // Syntax ERROR. The object is a const
 	
 	for (auto val : vec)
 		std::cout <<val<<" ";
@@ -136,72 +224,160 @@ class vector{
 public:
 	int &front();
 	const int &front() const;
+};
+```
+
+# The mutable keyword (data member usage)
+#Cpp_mutable
+There are such member functions that these functions do not change the perceived value/status of the class object in the problem domain. Therefore, from a semantic perspective, it must be a const member function.
+
+Let's assume, we have a data member that represents the call count of the member functions for debug purposes. Is the change in the value of the debug object related to the meaning of the class object in the problem domain? The answer is no. But if we try to change the value of debug object in the const member function that would be syntax error. Here is a conflict between the syntax rules of the language and the semantic side. The debug variable can be changed according to semantic side of the language because it is not related to value of object that in problem domain. But the syntax of the language prohibits this.
+
+```cpp
+class Myclass { 
+public: 
+	void func()const; 
+private:
+	int debug_call_count = 0; 
+};
+
+void Myclass::func()const
+{
+	++debug_call_count; // Syntax error. A const member function can't change it.
 }
 ```
 
-## The mutable keyword (data member usage)
-There are member functions that they don't change the class object's value or state at he problem domain. For this reason, there must be const member functions in semantic way.
-What is the problem domain? If we add a variable that counts member functions call count, would it be in the problem domain of the object? Of course no, because the value is only for debug purposes and doesn't effect the problem domain of the class object. So, how we change the value of that variable in a const member function? We were have been did it with type cast previously until a new keyword added to the language. This keyword added because there is a inconsistency between the syntax if the language and the semantic of the language. This keyword is '<mark style="background: #BBFABBA6;">mutable</mark>'.We use mutable keyword on a data member to say the compiler that changing the data member inside a const member function doesn't effect the class object's problem domain.
+We had to do some tricks to reconcile syntax and semantics in early times of C++ (before the standards). For example, we were doing type conversion. We need to change the type of 'this' pointer to non-const in this example.
 
-Mutable keyword has different meaning depending in the situation. Se mentioned usage on a data member. 
+```cpp
+void Myclass::func()const
+{
+	++const_cast<Myclass *>(this)->debug_call_count; // In early C++
+}
+```
 
->[!question] Interview Question
->**Question**: What is the meaning of the usage of mutable keyword on a class data member?
->
->**Answer**: We say to the compiler that changing that object value doesn't effect the class's value that in the problem domain.
+But we never do it like that. There is a keyword used for this purpose. This keyword is '**mutable**'.  This keyword indicates the value of the variable is not related to value of class object. This indication is for compiler and the code reader. A mutable variable can be changed by non-const member functions.
 
->[!Example] Syntax Example
->Mutable keyword example (usage on a data member).
->```cpp
->class Myclass {
->public:
->	void func()const;
->private:
->	mutable int debug_call_count = 0;
->};
->
->void Myclass::func()const
->{
->	++debug_call_count; // It is OK since the data member is mutable
->}
->```
-# ODR
+```cpp
+class Myclass { 
+public: 
+	void func()const; 
+private:
+	mutable int debug_call_count = 0; 
+};
+
+void Myclass::func()const
+{
+	++debug_call_count; // OK. The variable is mutable.
+}
+```
+
+> [!question] Question: What is meaning of 'mutable' keyword when we use it for a class data member?
+> A: We declare to the compiler and the reader that, this variable member of the class is not related to value of the class (value in the problem domain). So, the compiler don't give syntax error in case of value change of this variable in const member function.
+> #Cpp_Interview_Question 
+
+> [!warning]  Warning: Mutable is a overloaded keyword
+> Mutable is overloaded keyword. There is another use case of 'mutable' keyword, too. But we will mention it later.
+
+
+# ODR - One Definition Rule
+#Cpp_ODR
+
+ODR is an acronym. ODR means "**One Definition Rule**". Defining an presence more than one causes a syntax error or a undefined behavior depending in the situation.  ODR means one definition for each presence.
+
+"Declaration" and "definition" are different concepts in C and C++. Declaration can be made more than once, but the definition has to be unique (For each presence). But if we define a presence more than once, it will be a syntax error or undefined behavior depending on the usage. So breaking the one definition rule is causes a syntax error or a undefined behavior.
+
+```cpp
+class Myclass {
+	// ...
+};
+
+class Myclass { // Syntax ERROR. Same definiton of one object
+	// ...
+};
+```
+
+If we define a presence more than one time in a source file (means same scope - global scope), it will syntax error. The compiler has to see the breaking the one definition rule to give a syntax error.
+
+But if we define a presence two times in different source files, it will not a syntax error. Because the compiler compiles each source files separately. But we break the one definition rule. This is undefined behavior.
+
+**Consequences of breaking one definition rule:**
+1. Syntax error (If definitions are in same source files)
+2. Undefined behavior (If definitions are in separate source files)
+
+> [!note] Note: ODR and static
+> If we define the object as static, it won't lead undefined behavior
+
+> [!warning]  Warning: Don't define a function in a header file
+> Don't define a function in header file, it leads to function definition in each source file that included the header. It will leads to undefined behavior. The linker can give error or not depending on working environment, it is undefined behavior in every case.
+
+**EXCEPTIONS TO ONE DEFINITION RULE**
+The rules of the language says there are some exceptions of the one definition rule. And this exceptions are used frequently.
+
+There are entities that, although defined in more than one module within the project, do not cause undefined behavior if their definitions are the same **token-by-token**. The linker is guaranteed to see at worst one of these definitions from the linking phase.
+
+The rules for ODR exception:
+1. The definitions have to be in different source files.
+2. The definitions have to be same token-by token.
+
+```cpp
+// Myclass.cpp
+class Myclass{
+public:
+	void func(int);
+	void foo(int);
+};
+
+// main.cpp
+class Myclass{ // There is no undefined behavior. The definitions are same token-by-token and in different files.
+public:
+	void func(int);
+	void foo(int);
+};
+```
+
+```cpp
+// Myclass.cpp
+class Myclass{
+public:
+	void func(int);
+	void foo(int);
+};
+
+// main.cpp
+class Myclass{ // UNDEFINED BEHAVIOR. Because the definitions are not same token-by-token
+public:
+	void func(int);
+	void foo(int);
+	void g(int);
+};
+```
+
+ **CONCLUSION**
+ If an entity has this status, defining these entities in the header file does not create undefined behavior. Because every source file include same header and same definition. That means every instance of the definition is same token-by-token in source files.
+ 
+Due to this rule we get the right to define some entities in the header file.
+
+**WHICH ENTITIES DO NOT CAUSE UNDEFINED BEHAVIOR IF WE DEFINE THEM INSIDE A HEADER FILE**
+1. class definitions
+2. inline function definitions
+3. inline variables (since C++17)
+4. constexpr functions (Because, implicitly inline)
+5. template codes (All type of templates. class templates, function templates, variable templates, type templates etc.)
+
+> [!warning]  Warning: What we cannot do due to ODR?
+> - We cannot define a non-inline function in header file.
+> - We cannot define classes that has same name but has different token syntax in different source files.
 
 >[!note] Acronym
->C++ has wide acronym library. <mark style="background: #BBFABBA6;">Acronyms</mark> are abbreviations that created with first letter of the expressions.
+>C++ has wide acronym library. Acronyms are abbreviations that created with first letter of the expressions.
+>Some C++ acronyms
+> - AAA: Almost Always Auto. Describes a coding style
+> - ADL: Argument Depended Lookup
+> - EBO: Empty Base Optimization
+> - SFINAE: Substitution Failure Is Not An Error
 
->[!Example] Some acronym example for C++ 
-AAA: Almost Always Auto. Describes a coding style
-ADL: Argument Depended Lookup
-EBO: Empty Base Optimization
-SFINAE: Substitution Failure Is Not An Error
-
-ODR means "<mark style="background: #BBFABBA6;">One Definition Rule</mark>". <mark style="background: #FFB86CA6;">Defining an presence more than one causes a syntax error or a undefined behavior depending in the situation. So ODR means the rule that one definition for each presence</mark>.
-
-So, in order to ensure ODR:
-We must define an presence more than one.
-If two same definition is exist in a file the compiler gives syntax error
-If two same definition is exist in two different file the linker gives error. But it is possible to pass that state without an error and that would be undefined behavior.
-We cannot give definition on a header file because every include of it means a definition.
-
-But there is some exceptions for the ODR rule according to the language rules. And this exceptions are used frequently.
-There is some presences that if the definitions of it are same <mark style="background: #BBFABBA6;">token-by-token</mark> there isn't a undefined behavior even they are defined in multiple modules in a project.
-
-So there are situations that defining more than one is not breaks the ODR rule. But there are some conditions for that:
-1. Defining more than one cannot be in the same source file
-2. The presences that defined in different source files must be same token-by-token
-
-So that presences can defined in header files. Because when we include the header, the definition of that object is same token-by-token at every place.
-
->[!info]  Info: The presences that can be defined in header files
->So these presences are:
->1. class definitions
->2. inline functions
->3. inline variables (C++17)
->4. constexpr functions (implicitly inline)
->5. template codes (all type of templates. class templates, function templates, variable templates, type templates etc.)
-
-# inline expansion && inline functions
+# Inline Expansion & Inline Functions
 
 C and C++ compilers are optimizing compilers. These compilers has a optimizer module. 
 Inline expansion is a optimizing method.
@@ -312,5 +488,19 @@ class  Myclass{
 
 # Special member functions of classes
 
+---
+# Terms
+- object
+- instance
+- instantiate
+- const correctness
+- mutable
+- immutable
+- const member function
+- non-const member function
+- mutable keyword
+- ODR "One Definition Rule"
+- token-by-token
+- acronym
 ---
 Return: [[00_Course_Files]]

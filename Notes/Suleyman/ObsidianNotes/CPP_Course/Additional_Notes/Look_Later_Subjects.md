@@ -10,6 +10,12 @@
 - user defined conversion (conversion constructor)
 - Why "NULL" is not prefered to use instead of "0" before modern C++?
 - Dynamic cast
+- Different meaning of "using" keyword
+- compile-time library
+- type_traits
+- Inline functions and ODR
+- constant "this"
+- another meaning of 'mutable keyword'
 # Topics that needed to be look
 - Most Vexing Parse
 - AAA: Almost Always Auto
@@ -18,4 +24,7 @@
 - Strict aliasing rule
 - Integral Promotion
 - literal type
-- temporart objects
+- temporary objects
+- std::any
+- complete type, incomplete type (C)
+- inline variables (cpp17)

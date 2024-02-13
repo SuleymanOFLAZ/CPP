@@ -1,6 +1,5 @@
 [[00_Course_Files]]
 #Cpp_Course 
-
 # Function Binding Methods
 #Cpp_FunctionBinding
 **Static Binding**
@@ -189,7 +188,7 @@ int main()
 }
 ```
 
-# Implicit type conversion on C++
+# Implicit type conversion in C++
 #Cpp_ImplicitTypeConversions
 
 1. There is bidirectional implicit type conversion between integer number types and real number types. And also there is bidirectional implicit type conversion between integer types. And also there is bidirectional implicit type conversion between real types. That means there is bidirectional conversion between int, long int, long long int, short, char, float, double, long double 
@@ -203,7 +202,7 @@ int main()
 11. There is NOT implicit type conversion between enum types.
 12. There is NOT implicit type conversion from enum class types to arithmetic types.
 
-# Scoped enum
+# Scoped Enums
 #Cpp_enumClass
 Scoped enum (enum class) added to the language with modern C++. The "class" keyword can make some confusion but, "enum class" is not related to classes. 
 
@@ -305,23 +304,64 @@ int main()
 }
 ```
 
-# decltype Specifier/Operator
+# decltype Specifier
 #Cpp_decltype
 Type deduction was exist before modern C++. But, type deduction is only exist on usage of templates. Modern C++ spread the type deduction on most of the language and add new type deduction tools. One of them is auto keyword, and we look it a little bit. The another one is the <mark style="background: #BBFABBA6;">decltype specifier</mark>. Auto and decltype are completely different tools.
-We use auto on a variable to deduct it's type. Auto detect the type depending on the type of the object that we used the initialize the deducted variable. This one kind of the type deduction of the "auto", We mention others later. 
-But usage of decltype is different and not related to initialization. <mark style="background: #FFF3A3A6;">decltype is a keyword and we write a expression between parentheses after the keyword and that syntax corresponds to a type and we can use that syntax everywhere that we use a type.</mark> <mark style="background: #FFF3A3A6;">The type deduction is done at compile time with decltype</mark>. There is no obligation to initialize or declare a variable with decltype.
+
+**A quick reminder about "Auto" type deduction**: There are variety of "auto" keyword usages to deduct the type. For example auto return type, auto usage on lambda expressions (for example generalized lambda expressions),  auto usage as template argument and many more. We have been looked the one kind of usage of the auto keyword that is to deduct a variable type depending on the type of the object that we used the initialize the deducted variable. We mention others later. 
+
+Another tool to make the type deduction is decltype specifier. But usage of decltype is different and not related to initialization like as "auto". "decltype" is a keyword and we write a expression between parentheses after the keyword and that syntax corresponds to a type and we can use that syntax everywhere that we use a type. The type deduction is done at compile time. There is no obligation to initialize or declare a variable with decltype.
+
+We can use the "decltype" everywhere where we use a type. For example we can use it as function parameter types, to declare local or global variable, as function return type, as a type of the member of a class or struct. Actually, "decltype" is converted into a type by compiler.
+
+Soma usage examples of "decltype":
 
 ```cpp
+decltype(expr) x, y; // Compiler deducts the type depending on given expression.
+
 decltype(expr) foo(); // decltype(expr) corrensponds to the function return type
-
-int x = 5;
-decltype(x) y; // decltype(x) means int in this situation
-
-std::vector<decltype(x)> z;
 ```
 
-<mark style="background: #FFF3A3A6;">How the type deduction is done with decltype? The type deduction that is done with decltype is done with two format</mark>:
-1. <mark style="background: #FFF3A3A6;">The operand of the decltype is in a name form. The dot operand of a struct or class <mark style="background: #D2B3FFA6;">decltype(a.b)</mark> and -> operand of a pointer <mark style="background: #D2B3FFA6;">decltype(ptr->y)</mark> is included in that name form</mark>.
+```cpp
+int main()
+{
+	int x = 5;
+	decltype(x) y; // decltype(x) means int in this situation
+}
+```
+
+```cpp
+int x = 5;
+
+decltype(x) foo(decltype(x)); // A function declaration that return type is type of decltype(x), int in this case. Also parameter of the function is int, too.
+
+int main()
+{
+
+}
+```
+
+```cpp
+int x = 5;
+
+int main()
+{
+	std::vector<decltype(x)> z; // "decltype" used as template argument
+}
+```
+
+How the type deduction is done with decltype? The type deduction is done in two forms with the "decltype".  These forms are:
+- The expression of the decltype is a name expression.
+- The expression of the decltype is NOT a name expression.
+Let's look these forms.
+
+## First form of "decltype" type deduction - The operand of the decltype is a name
+The operand of the decltype specifier is in a name form. The compiler looks to the type of the name (which type the name declared with) to deduct the type in this situation.
+
+The key point is here to understand that, the type that in declaration to be taken into consideration. That means constness and referenceness are considered too.
+
+> [!note] Note: The dot operand of a struct or class (For example, "decltype(a.b)") and arrow operand of a pointer (For example, "decltype(ptr->y)") is included in the name form.
+
 ```cpp
 int x = 10;
 const int cx = 20;
@@ -330,61 +370,112 @@ int& r = x;
 
 int main()
 {
-	decltype(c) a = 5; // decltype is int
-	decltype(cx) a = 5; // decltype is const int 
-	decltype(cx) a; // Syntax error. const int must be initialized
-	decltype(ptr) a = &x; // decltype is int*
-	decltype(r) a = x; // decltype is int&
-	decltype(r) a; // syntax error. int& must be initialized
+	decltype(c) a = 5; // decltype is "int"
+	decltype(cx) a = 5; // decltype is "const int"
+	decltype(ptr) a = &x; // decltype is "int*"
+	decltype(r) a = x; // decltype is "int&"
 
 	int a[] = {1, 2, 3};
-	decltype(a) b; // decltype is int[3]. There is not array decay with decltype
+	decltype(a) b; // decltype is "int[3]". There is not array decay with decltype
 	
 }
 ```
-<mark style="background: #FFF3A3A6;">There is no array decay with decltype.</mark> How was the declaration is done is the decltype.
 
-2. <mark style="background: #FFF3A3A6;">The operand of the decltype is a expression.</mark> The rule set for this notation is different form previous (the operand was a name). Let the expression that is decltype's operand be of T type. (a expression has a type and that type cant be a reference, but can be a int, double or int* etc). The type that achieved with decltype is depends on the decltype's operand's value category. So, the expression can be in PR value category or L value category or X value category.
-Let the expression that is decltype's operand be of T type. <mark style="background: #FFF3A3A6;">Depending on the value category:</mark>
-- <mark style="background: #FFF3A3A6;">PR value: decltype is T</mark>.
-- <mark style="background: #FFF3A3A6;">L value: decltype is a L value reference, that mean the decltype is T&</mark>.
-- <mark style="background: #FFF3A3A6;">X value: decltype is a R value reference, that means the decltype is T&&</mark>.
-
-We not see he X value yet. But a function call to a function that returns a R value reference is a X value expression.
+> [!question] Question: Interview questions about decltype usage
+> Q: Is there a syntax error?
+> A: First decltype usage is a syntax error because, deducted type with decltype is "const int" and, a const object must be initialized. The second decltype usage is syntax error because, deducted type with decltype is "int&" and a reference must be initialized.
 ```cpp
-decltype(× + 5)
-decltype(*ptr)
-decltype((x)) // x is a name but (x) is a expression
----
-int&& foo();
+const int cx = 20;
+int& r = x;
 
+int main()
+{
+	decltype(cx) a; // Syntax error. const int must be initialized
+	
+	decltype(r) a; // syntax error. int& must be initialized
+}
+```
+#Cpp_Interview_Question 
+
+> [!warning]  Warning: There is no array decay with decltype in the name usage. Because the declared type is an array. Don't forget type deduction is done with declared type with decltype (In case of operand of the decltype is a name).
+
+```cpp
+int main()
+{
+	int a[] = {1, 2, 3};
+	decltype(a) b; // decltype is "int[3]". There is not array decay with decltype
+	
+}
+```
+
+## Second form of "decltype" type deduction - The operand of the decltype is an expression
+
+The operand of the decltype is a expression, but not a name expression. The set of rules for this notation is different form previous (The operand was a name expression in previous form). 
+
+> [!warning]  Warning: We must know which expressions are considered as name, and which are not. For example, there are expression example that looks like name expressions but not in below.
+```cpp
+int x;
+int* ptr;
+
+decltype(*ptr); // "*ptr" is NOT a name expression.
+decltype((x)); // "(x)" is NOT a name expression.
+```
+
+Now, let's look the set of rules:
+The type that deducted with decltype is depends on the decltype's operand's value category. Remember, an expression's value category can be in PR value category or L value category or X value category.
+
+The deducted type can be like followings depending on the the value category of the expression of the operand of the decltype, in assumption the type of the expression is T type.
+1. The type is deducted as "T" in the situation the expression value category is a PR value.
+2. The type is deducted as "T&" (L value reference) in the situation the expression value category is a L value.
+3. The type is deducted as "T&&" in the situation the expression value category is a X value.
+
+> [!note] Note: An expression has a type and that type can't be a reference type, but can be a int, double or int* etc
+
+**Case the expression is PR value:**
+```cpp
 int main()
 {
 	int x = 10;
 	double dval = .5;
-	decltype(× + 5) ival; // decltype is int. Because the x+5 is PR value end type of it is int.
-
-	decltype(× + dval) ival; // decltype is double. Because the x+5 is PR value and type of it is dobule.
-
-	int* ptr = &x;
-	decltype(*ptr) y = x; // decltype is int&. Because the *ptr is a L value and type of it is int. 
-	decltype(*ptr) y; // syntax error. Because decltype is int& and not initialized.
-
-	int a[5]{};
-	int y{};
-	decltype(a[2]) x = y; // decltype is int&. Because the a[2] is a L value and type of it is int.
-
-	int a = 5;
-	int b = 6;
-
-	decltype(a) x = b; // decltype is int. Because a is a name
-	decltype((a)) y = b: // decltype is a int& because (x) is a L value expression. Parentheses are priority operator here.
-
-	decltype(foo()) x = 10; // decltype is a int&&. Because the foo() is a X value expression (returns a R value reference). This is same as writing int&& x = 10;
+	decltype(× + 5) ival; // decltype is "int". Because the "x+5" is PR value and type of it is int.
+	decltype(× + dval) ival; // decltype is "double". Because the "x+dval" is PR value and type of it is dobule.
 }
 ```
 
-<mark style="background: #FFF3A3A6;">Example</mark>: How would the following program print ? (450 and 10, because ):
+**Case the expression is L value:**
+```cpp
+int main()
+{
+	int* ptr = &x;
+	decltype(*ptr) y = x; // decltype is "int&". Because the type of expression "*ptr" is "int" and value category of it is "L value". 
+	decltype(*ptr) y; // Syntax ERROR. Because, decltype is "int&" and not initialized.
+
+	int a[5]{};
+	int y{};
+	decltype(a[2]) x = y; // decltype is "int&". Because, "a[2]" is a L value expression and type of it is "int".
+}
+```
+#Cpp_Interview_Question 
+
+**Case the expression is X value:**
+```cpp
+int&& foo();
+int main()
+{
+	int a = 5;
+	int b = 6;
+
+	decltype(a) x = b; // decltype is "int". Because the "a" is a name
+	decltype((a)) y = b: // decltype is a "int&" because, "(x)" is a L value expression (Not a name because of the parentheses). Parentheses are priority operator here.
+
+	decltype(foo()) x = 10; // decltype is a "int&&". Because, the "foo()" is a X value expression (returns a R value reference). This is same as writing "int&& x = 10;"
+}
+```
+#Cpp_Interview_Question
+
+> [!question] Question: 
+> Q: How would the following program print ? 
+> A: The "y" prints as 450 because "++a" is a L value expression and deducted is "int&". The "a" prints "10" because the expression inside decltype specifier parentheses considered as "unevaluated context"  just like "sizeof" operator.
 ```cpp
  #include <iostream>
 
@@ -402,8 +493,14 @@ int main()
 	std::cout << "a = " << a << "\n";
 }
 ```
-<mark style="background: #FFF3A3A6;">Why a prints 10 instead of 11. The expression of decltype's operand is a</mark> <mark style="background: #BBFABBA6;">unevaluated context</mark>. <mark style="background: #FFF3A3A6;">The compiler doesn't produce a code if the expression is a unevaluated context. This is guarantee with the language rule. C language has one example of unevaluated context, but C++ has many. The only unevaluated context in C is the sizeof operator, and the sizeof operator's operand doesn't evaluated in C++ too.
-Examples</mark>:
+#Cpp_Interview_Question 
+
+> [!warning]  Warning: Expression that is operand of the decltype is considered as "unevaluated context".
+
+> [!note] Note: Unevaluated Context
+> There are certain places that the compiler doesn't evaluate the expression inside them. We call that situation "Unevaluated Context". The not execution of the expression that considered as unevaluated context is guaranteed by the language rules. There is one example of it in C, that is expression of "sizeof()"operator. But, there are several examples of it in C++ and, one of them is the expression of the decltype specifier.
+
+> [!example] Example: Unevaluated context example
 ```cpp
 // Unevaluated Context exmaple.
 using namespace std;
@@ -412,12 +509,16 @@ int main()
 {
 	int* p = nullptr;
 	int a[3]{};
-	auto n1 = sizeof(*p); // OK. The compiler does't dereferance the null pointer
-	auto n2 = sizeof(a[5]); // OK. The cmopiler doesn't use the a[5]
+	auto n1 = sizeof(*p); // OK, there isn't undefined behavior. The compiler does't dereferance the null pointer because it is unevaluated context
+	auto n2 = sizeof(a[5]); // OK, there isn't undefined behavior. The cmopiler doesn't use the a[5] because it is unevaluated context
 }
 ```
 
-<mark style="background: #FFB8EBA6;">Additional example</mark>:
+> [!example] Example: Vale category of an expression and type of an expression is different things.
+> Q1: What is the type of variable r?
+> A1: The type of "r" is "int&&"
+> O2: What is the value category of expression "r"?
+> A2: The value category of "r" is "L value "
 ```cpp
 int main()
 {
@@ -425,10 +526,10 @@ int main()
 	int&& r = 5 + x;
 }
 ```
-<mark style="background: #FFF3A3A6;">Question 1</mark>: What is the type of variable r? = int&&
-<mark style="background: #FFF3A3A6;">Question 2</mark>: What is the value category of expression r? = L value expression, because r is a name and all names is a L value expression.
 
-<mark style="background: #FFB8EBA6;">The upper example is asked in exams in function overload form</mark>:
+> [!question] Question: The upper example is asked in exams in function overload form
+> Q: Which function is called?
+> A: The function that takes "int&" is called because value category of "r" is L value even though type of r is "int&&".
 ```cpp
 void func(int&&)
 {
@@ -446,7 +547,7 @@ int main()
 	func(r);
 }
 ```
-<mark style="background: #FFF3A3A6;">Question</mark>: Which function is called in upper code? The answer is 2nd function because r is a name and a L value expression.
+#Cpp_Interview_Question 
 
 ---
 # Terms
@@ -466,5 +567,6 @@ int main()
 - enum class
 - forward declaration
 - decltype specifier
+- unevaluated context
 ---
 Return: [[00_Course_Files]]

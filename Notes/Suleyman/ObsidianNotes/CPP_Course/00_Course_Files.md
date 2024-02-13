@@ -18,8 +18,19 @@
 - Function Overloading
 - Function Overload Resolution
 [[05_CPP_Course]]
-
+- Function Binding Methods
+- Type-cast Operators
+- Implicit Type Conversions
+- Scoped Enums
+- decltype Specifier
 [[06_CPP_Course]]
+- extern C declaration
+- Classes
+- Scope
+- Name lookup
+- Control Phases
+- Member Function
+- This pointer
 
 [[07_CPP_Course]]
 
