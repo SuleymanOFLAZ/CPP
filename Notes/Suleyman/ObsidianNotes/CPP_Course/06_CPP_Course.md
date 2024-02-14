@@ -122,7 +122,8 @@ int main()
 {
 	int x = 10;
 	x();
-}```
+}
+```
 With the "x();" syntax the compiler looks for x (means makes name lookup) in upper example. The compiler finds the "int x=10;" and at that point the name lookup finishes. Than the compiler checks the syntax if is it legal or not. The "x();" is a function call so the compiler throws a syntax error. If the "int x=10;" doesn't exist the compiler would find the "int x();" at the name lookup and that isn't a syntax error due to "x();" expression.
 
 >[!tip] Tip: Tip: How the name lookup can conclude?
