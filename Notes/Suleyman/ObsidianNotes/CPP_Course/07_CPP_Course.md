@@ -279,8 +279,7 @@ void Myclass::func()const
 > [!warning]  Warning: Mutable is a overloaded keyword
 > Mutable is overloaded keyword. There is another use case of 'mutable' keyword, too. But we will mention it later.
 
-
-# ODR - One Definition Rule
+# One Definition Rule - ODR
 #Cpp_ODR
 
 ODR is an acronym. ODR means "**One Definition Rule**". Defining an presence more than one causes a syntax error or a undefined behavior depending in the situation.  ODR means one definition for each presence.
@@ -378,27 +377,198 @@ Due to this rule we get the right to define some entities in the header file.
 > - SFINAE: Substitution Failure Is Not An Error
 
 # Inline Expansion & Inline Functions
+## Inline Expansion
+#Cpp_InlineExpansion
+C and C++ compilers are optimizing compilers. These compilers have a optimizer module. **Inline expansion** is a optimizing method.
 
-C and C++ compilers are optimizing compilers. These compilers has a optimizer module. 
-Inline expansion is a optimizing method.
-The compiler writes a reference for linker and that called external reference. For example a function reference.
-The compiler can directly use the function instead of giving reference to the linker if the compiler knows the function's definition if case of a function call. These techniques generally are called inline expansion.
+The compiler writes a function reference to linker and it is called **external reference**. The compiler can directly use the function code instead of giving reference to the linker if the compiler knows the function definition in case of a function call. The linker step is eliminated in this situation. The resulting code becomes more effective due to optimization.
 
-So the questions for inline expansion are:
-1. can it done?
-2. is there a benefit?
+The technique where the compiler eliminates the linker and uses the compiled code of the function at the location of the function call is called "inline expansion".
 
-The compiler must see the function's definition. The compiler must has capability to do that. Some compilers can do that and some can't. The compilers has switches, so the compiler has different switches for inline expansion. For example always inline expansion switch that means use always inline expansion if it possible. Or a never inline switch.
+The questions for inline expansion are:
+1. Can it done?
+2. Is there a benefit?
 
-The benefit of a inline expansion can differ depending on situation.
-Getting benefit of inlining can be possible with the functions that have few statements and called frequently.
+The compiler have to see the definition of the function to make inline expansion.
 
-We can use <mark style="background: #BBFABBA6;">inline</mark> keyword to defined inline functions. We tell the compiler that do inline expansion with that function it it is possible. The compile can inline expand on function that is not stated with inline keyword, or cannot inline expand on function that is stated with inline keyword. So what is the meaning of using inline keyword if the compiler doesn't care about it.
+Another question is if the compiler have capability to make inline expansion? Some compilers can do that and some others can't. The compilers have switches, and have different switches for inline expansion optimization, too. This switches can differ between compilers, for example there can be a switch for always use inline expansion. Or there can be switch for never inline expansion.
 
-<mark style="background: #FFB86CA6;">But the important point of using the inline keyword is we create a function that don't break the ODR</mark>. So a inline function definition is count as one regardless of how many times is it defined in source files. <mark style="background: #FFB86CA6;">That means we can write inline function definitions in the header files.</mark> 
+Another point is inline expansion can't be possible for every function even if the compiler has ability to do it. For example the function can be so complicated (For example if there are a lot of recursive calls and nested loops inside the function).
 
-<mark style="background: #FFB86CA6;">One of the most applicant for inline functions is that member functions of the classes that has few process like a simple get function</mark>. So it is important to make that member functions inline. But the compiler must see the definition of that function. To ensure that 
+Can we get benefit of a specific inline expansion? This question is hard to answer, because there are a lot of factor. For example we think the effectiveness is increased in case of inline expansion but more costly code can be created due to factors we don't understand. There can be situations the inline expansion bring disadvantage instead of benefit.
 
+So it can't be possible to say inline expansion bring benefit every time. But we can say getting benefit from inlining can be possible with the functions that have few statements and called frequently.
+
+Ideal situation is taking the decision to make inline expansion by compiler. Because it is not possible to say every time it is beneficially. Already the compiler can take decision to make inline expansion by take charge of the situation, even if we don't give a instruction for inline expansion.
+## Inline Functions
+#Cpp_InlineFunctions
+We use **inline keyword** before the return value type of a function to define inline function. We tell to the compiler make inline expansion in case of a function call if it is possible. This is not an obligation to the compiler make a inline expansion. The compiler can make inline expansion on a function that is not stated with inline keyword, too. Or cannot make inline expansion on a function that is stated with inline keyword. The compiler make an analysis about inline qualified function to determine if is there a benefit of making inline expansion and can decide to not make a inline expansion. In conclusion, the compiler can take decision better than us about making a inline expansion.
+
+**Importance of Inline Keyword**
+So what is the meaning of using inline keyword if the compiler doesn't care about it. The importance of using inline keyword is we create a situation that don't break the one definition rule. In other words, no matter how many code files an inline expansion definition is in, only one will be seen at the linker stage. This means we can put the inline functions inside the header files.
+
+```cpp
+// something.h
+inline int foo(int x, int y)
+{
+	return x*x - y*y; // Don't break the ODR. More than one source code can include it without undefined behavior
+}
+```
+Let's say the compiler didn't make inline expansion for this inline expansion. But anyways, it is guarantee to the linker sees only one compiled function code in linkage phase.
+
+**Separate the two meaning of inline keyword.**
+1. Compiler does inline expansion if it finds this directive appropriate. This is lost its meaning. Because it can take this decision itself, if it sees the definition.
+2. A inline qualified function can be defined inside header files and it isn't break the ODR rule. Because the linker sees only one definition at linkage phase. This is guaranteed. (Important one)
+
+**Where is inline keyword used?**
+One of the most applicant for inline functions is that member functions of the classes that has few process like a simple get function. Making inline expansion in these function is important. But the compiler has to see the code for making inline expansion. Compiler can see it if we define the function inside the header file.
+
+Compiler can't make inline expansion if we don't define the functions inside header file because the compiler can't see the function definitions at compile time. The example code:
+```cpp
+// Myclass.h
+class Myclass{
+public:
+	void set(int);
+	int get()const;
+private:
+	int mx;
+};
+
+// Myclass.cpp
+#include "Myclass.h"
+
+void Myclass::set(int x) // Not inlined. Other source files can't see the definition
+{
+	mx = x;
+}
+
+int Myclass::get()
+{
+	return mx;
+}
+
+// main.cpp
+#include "Myclass.h"
+
+int main()
+{
+	Myclass m;
+
+	m.set(12);
+	auto m.get();
+}
+```
+
+We have to show the functions definitions to the compiler to give making inline expansion change to the compiler. We take the functions to header file and make them inline. We can write "inline" keyword at declaration or definition or both of them.
+```cpp
+// Myclass.h
+class Myclass{
+public:
+	void set(int);
+	int get()const;
+private:
+	int mx;
+};
+
+inline void Myclass::set(int x) // OK Inlinde. We can give the "inline" keyword at definition or decleration or both of them
+{
+	mx = x;
+}
+
+inline int Myclass::get()
+{
+	return mx;
+}
+
+// main.cpp
+#include "Myclass.h"
+
+int main()
+{
+	Myclass m;
+
+	m.set(12);
+	auto m.get();
+}
+```
+
+The following syntax is undefined behavior because the functions aren't inline.
+```cpp
+// Myclass.h
+class Myclass{
+public:
+	void set(int);
+	int get()const;
+private:
+	int mx;
+};
+
+void Myclass::set(int x)  // UNDEFINED BEHAVIOR. The ODR rule is broke. Functions are not inline and the definitions of them are inside the header file
+{
+	mx = x;
+}
+
+int Myclass::get()
+{
+	return mx;
+}
+
+// main.cpp
+#include "Myclass.h"
+
+int main()
+{
+	Myclass m;
+
+	m.set(12);
+	auto m.get();
+}
+```
+
+> [!note] Note: constexpr functions and function templates are implicitly inline.
+> We can define a constexpr function or a function template inside a header file without the "inline" keyword because they are implicitly inline. We can use the "inline" keyword with them but this is unnecessary. But the inline expand meaning (not related one with the ODR) of the keyword in valid in case of usage it. Since constexpr function is not need inline expansion in case of constexpr usage, it is meanless in that case. But, it can also used as non-constexpr function. In non-constexpr function usage "inline" keyword can make sense if the compiler cares about it.
+
+**There are two way to define a member function inline.**
+1. We define the function inside the header file but outside the class definition. But we have to use "inline" keyword at the definition or declaration or both of them.
+```cpp
+// Myclass.h
+class Myclass{
+public:
+	void set(int);
+	int get()const;
+private:
+	int mx;
+};
+
+inline void Myclass::set(int x)
+{
+	mx = x;
+}
+```
+
+2. We define the function directly inside the class definition. We don't need to use "inline" keyword with that syntax. But we can use the keyword too. No matter if we use the "inline" keyword or not, the functions are inline. Defining inline functions inside class definition is more readable.
+```cpp
+// Myclass.h
+class Myclass{
+public:
+	void set(int) // This function is inline. No need to "inline" keyword.
+	{
+		mx = x;
+	}
+	int Myclass::get()
+	{
+		return mx;
+	}
+private:
+	int mx;
+};
+```
+
+**How we determine to give a function definition inside header file as inline?**
+
+
+
+We 
 We can use inline keyword in definition or declaration or both of them to make the function inline. But if there is not inline qualification on any of them, this is function is not inline and cannot be used in header files.
 
 <mark style="background: #FFB86CA6;">We can apply same rules to the global functions too</mark>. That mean we can define a global function with inline keyword inside a header file.
@@ -502,5 +672,7 @@ class  Myclass{
 - ODR "One Definition Rule"
 - token-by-token
 - acronym
+- inline expansion
+- inline keyword
 ---
 Return: [[00_Course_Files]]
