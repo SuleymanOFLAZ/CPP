@@ -16,6 +16,8 @@
 - Inline functions and ODR
 - constant "this"
 - another meaning of 'mutable keyword'
+- value and default initialization difference of a class object
+- functions that can be defaulted after C++20
 # Topics that needed to be look
 - Most Vexing Parse
 - AAA: Almost Always Auto
@@ -28,3 +30,4 @@
 - std::any
 - complete type, incomplete type (C)
 - inline variables (cpp17)
+- Where we use private constructors 

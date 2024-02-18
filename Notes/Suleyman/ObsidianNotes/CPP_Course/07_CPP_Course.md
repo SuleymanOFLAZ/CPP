@@ -1,6 +1,6 @@
 [[00_Course_Files]]
 #Cpp_Course 
-The existence that is created with using a class definition is called "**object**" or "**instance**". Creating act that object is called "**instantiate**".
+The existence that is created using a class definition is called an "**object**" or "**instance**". Creating act that object is called "**instantiate**".
 
 A class is a definition that describes how can we use that type. We create objects that suits class definition. Instantiate means creating objects that suits that definition. The object that consisted in end of this process is an instance.
 
@@ -564,99 +564,126 @@ private:
 };
 ```
 
-**How we determine to give a function definition inside header file as inline?**
+**How do we determine to give a function definition inside the header file as inline?**
+The answer depends on the situation. Let's look at some considerations about making a function inline.
+**Implementation details will be exposed:** Heaving the code in the header file means the code is "exposed". This means exposing the code to the outside. Inline functions leak the implementation details. This can be important or not depending on the situation.
+**Dependency is increased:** The inline function can be using another data type and we have to include the header file that defines the used type in our header files. In this case, we increase the dependency. The files that include our file will include the header file of the data type and files that the data type's header file make include.
 
+**HEADER ONLY LIBRARY**
+Header-only library means there is no code file associated with the header file or a compiled version of that code file. The client code can use the library just by including the header file. The file that the client code needs for using the library is only that header file. If all the member functions are inline, and the global functions are inline, the ODR is not violated. These are design choices and there is not one right way or the best way.
 
+**Which class functions can be defined as inline?**
+- non-static member functions of the classes
+- static member functions if the classes
+- global functions
+- 'friend functions' of the classes
 
-We 
-We can use inline keyword in definition or declaration or both of them to make the function inline. But if there is not inline qualification on any of them, this is function is not inline and cannot be used in header files.
+# Constructor and Destructor 
+There are two important non-static member functions. These functions are 'constructor' and 'destructor'. Constructor is used to bring the class object alive. Destructor is used to end the life of the class object. The constructor has to be called to bring a class object to life, and the destructor has to be called to end the life of the class object. There is no other way to create or destroy a class object.
 
-<mark style="background: #FFB86CA6;">We can apply same rules to the global functions too</mark>. That mean we can define a global function with inline keyword inside a header file.
+> [!note] Note: RAI Idiom
+**Resource Acquisition is Initialization - RAI**
+'RAI' is an idiom that means objects are brought to life with a constructor and end their life with a destructor.
+#Cpp_RAI
+## Constructor
+#Cpp_constructor
+The creation of a class object occurs with a call to a class function. This function is a non-static member function and is called '**constructor**'. There is a constructor that is called to bring a class object to life, not the other way around. The constructor has a different state and different syntax rules.
 
-<mark style="background: #FFB86CA6;">constexpr functions and function templates are implicitly inline</mark>. So we can use them in a header file without inline keyword. We can also use inline keyword with constexpr functions. That don't make change in ODR rule of constexpr function because implicitly inline. But using inline keyword with constexpr function makes sense in that perspective we say the compile to inline that function. Since there is no guarantee for that, this is not clearly meaningful but has a little sense inside them, since a constexpr function can be called with non-constexpr parameters a like a regular function.
-
-<mark style="background: #FFB86CA6;">There are two way to define a member function inline</mark>:
-1. Definition of function can be given in header file at some place outside of the class definition with inline keyword
-2. writing the function definition inside the class definition. Even we don't write the inline keyword the function is inline in with this syntax. We can use the inline keyword but this is optional since the function is inline already. This is more clear syntax.
-
-<mark style="background: #FFB86CA6;">Some important metters</mark>:
-1. If we don't provide inline keyword, we close the inline expansion possibility of that function to other modules(files) because they are not know the functions definition. Other way, the compiler has possibility to do the inlining if it considers it meaningful.
-2. Inline functions leaks the implementation details. Because they are in header files.
-3. we include another header file if the inlined function uses presences from an external files. And that increases the dependency,
-
-There are term called <mark style="background: #BBFABBA6;">header only library</mark>. That means there is not source file that compiled. If all functions are inlined, that is possible and these are design decisions.
-
-<mark style="background: #FFB86CA6;">Which functions can be defined as inline</mark>:
-1. non-static member functions
-2. static member functions
-3. global functions
-4. friend functions
-
-# constructor and destructor 
-
-There are two important member functions inside the member functions of class. These are constructor and destructor.
-
-Creating a class object is done with a function call to a function of the class, and this is one of the most important rule of the C++. This function is a member function and called <mark style="background: #BBFABBA6;">constructor.</mark> The constructor makes the class object usable. <mark style="background: #FFB86CA6;">Constructor is a must, that means we cannot create a class object without the constructor</mark>. Constructor is a non-static member function of the class but it has a special status.
-
-Destructor is called when the object is destroyed. This is a special non-static member function too.
-
-There are some special rules for constructor:
-1. We cannot chose the name of the constructor and name of the constructor must be same as the class name
-2. There is not return concept of the constructor. That doesn't mean there is not return of the constructor. non-existence of return value and non-existence of return concept are two different things
-3. constructor must be a non-static member function of the class. (There are static constructor concept in some other programming languages, there is not in C++)
-4.  Constructor cannot be a const member function. 
-5. Constructor cannot be called like other member functions (cannot be called with dot operator or arrow operator)
-
-Access control is legal for constructor. That means a constructor can be private, public or protected. But making constructor private causes the syntax error in case of creating an object. Is there situations that we prefer a private constructor? There is, we can prefer private constructor in case of some design patterns. 
 ```cpp
 class Myclass{
-	Myclass(int); // Private constructor
-
-	void foo()
-	{
-		Myclass m(12); // OK, a member function can access private members
-	}
 
 };
 
 int main()
 {
-	Myclass m(12); // Syntax ERROR, the constructor is private
+	Myclass m; // Constructor is called.
+	Myclass a[10]; // Constructor is called 10 times for 10 objects.
 }
 ```
 
-A class has a storage in memory. We must set that memory before clients use the class object. So constructor make a class object usable. constructor initializes the non-static member functions or does other initializations(can be creating a log file, connecting to a database, set operation to a serial port). 
+**The constructors are subjected to some special rules.**
+1. Name of the constructor: We cannot choose the constructor's name. The constructor has to bear the same name as the class.
+2. Return concept of the constructor: There is no return concept of the constructor. That doesn't mean there is no return value of the constructor. We have to leave empty the return type of the constructor.
+3. The constructor has to be a non-static member function of the class. (There is a static constructor concept in some other programming languages, but there is no such concept in C++).
+4. Constructor can't be const.
+5. Constructor cannot be called like other member functions.
 
-A constructor can be more that one and can be overloaded. Function overload rules are legal in here.
+> [!note] Note: Return concept and return value
+> Return concept and return value are different things in C++. It can be possible that a function has no return concept but has a return value. For example, constructor and destructor.
 
+A class object has storage in the memory and can have data elements. A class object has to be ready to do its job to start being used by client codes. The thing that makes a class object ready to use is the constructor. The constructor initializes the non-static data members of the class. The constructor can even do some jobs if some jobs are needed to use the constructor. For example, these jobs can be creating a log file if the class object needs to use it, connecting a database, or setting a serial port.
 
-> Summary
-> 1. Constructor initializes the class object and makes it usable for clients
-> 2. Constructor must be non-static and non-const
-> 3. Constructor has't a return concept
-> 4. Constructor must has the name name with class
-> 5. Constructor can be a member or public, protected, or private
-> 6. Constructor can be overloaded
+We have to write a constructor for the class that we write. If we don't write a constructor, some other rules of the language will be in charge, we will mention them later.
 
-## Default Constructor
-Constructors has a special overload that called default constructor. A default constructor is a constructor that there ins't a parameter or all parameter's have default argument. That means a default constructor is called without arguments.
+The constructor can be overloaded and have different parametric structures. The function overload rules are valid for the constructor.
 
 ```cpp
-class  Myclass{
-	Myclass(); // Default constructor, no parameter
-	// OR
-	Myclass(int=10); // Default constructor, all parameter have default
+class Myclass{
+public:
+	Myclass();    // Constructor
+	Myclass(int); // Constructor
+	void func(int);
+};
+
+int main()
+{
+	Myclass m; // Constructor is called.
+
+	m.func(12);
+	m.Myclass(); // Syntax error. A constructor cannot be called like other non-static member functions.
 }
 ```
 
->[!tip] Tip: Abbreviation
->ctor: means constructor
->dtor: means destructor
+The constructor can be public, private, or protected. The access control is valid for a constructor. We can make the constructor private, but if we write a code that the client code calls the constructor, this concludes with a syntax error. Are there cases in which we choose to make the constructor private? Yes, there are. We can choose to make the constructor private in the implementation of some design patterns. But these cases are rare. Note that, member functions of the class can access the private constructor.
 
-# destructor
+```cpp
+class Myclass{
+	Myclass(int);    // Constructor. OK, a constructor can be private.
 
+	void foo()
+	{
+		Myclass m(23); // OK. 'foo' has rights to access the constructor.
+	}
+};
 
-# Special member functions of classes
+int main()
+{
+	Myclass m(12); // Syntax ERROR. It gets caught by access control because the constructor is private.
+}
+```
+
+### Default Constructor
+There is a special constructor overload called 'default constructor'. A default constructor is a constructor that has no argument or all of the arguments take the default value. This means the default constructor can be called without an argument.
+
+```cpp
+class Myclass{
+	Myclass();    // Default constructor, has no argument.
+};
+
+class Myclass2{
+	Myclass(int = 10);    // Default constructor, all of the argument has a default value.
+};
+```
+ 
+## Destructor 
+#Cpp_destrunctor
+A non-static member function of the class is called to end the life of the class object. This function is called '**destructor**'.
+
+The destructor is subjected to the same special rules that are mentioned with the constructor.
+
+A destructor can't be overloaded and can't have parameters.
+
+The destructor can be public, private, or protected. This is the same as the constructor.
+
+The destructor has a '~' character in front of its name.
+```cpp
+class Myclass{
+	Myclass(); // Constructor
+	~Myclass(); // Destructor
+};
+```
+
+The destructor can be called by its name, unlike the constructor. But don't do this. Calling the destructor is valid for only very special cases.
 
 ---
 # Terms
@@ -674,5 +701,9 @@ class  Myclass{
 - acronym
 - inline expansion
 - inline keyword
+- header-only-library
+- include dependency
+- constructor
+- destructor
 ---
 Return: [[00_Course_Files]]

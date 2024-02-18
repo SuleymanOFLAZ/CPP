@@ -124,5 +124,13 @@
       ],
       "key": "R"
     }
+  ],
+  "obsidian-hotkeys-for-templates:tmp_important.md": [
+    {
+      "modifiers": [
+        "Ctrl"
+      ],
+      "key": "I"
+    }
   ]
 }
