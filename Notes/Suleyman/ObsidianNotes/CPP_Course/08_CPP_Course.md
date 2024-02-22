@@ -469,6 +469,10 @@ There are 6 special member functions. There were 4 special member functions in o
 
 "Move constructor" and "move assignment" are added to the language with the addition of "**move semantic**" (after C++11). #Cpp11
 
+A special member function can be in three different status. These statuses are:
+- Implicitly declared
+- User declared
+- Not declared
 ## Implicitly Declared Special Member Functions
 Special member functions can be "**implicitly declared**". This means the compiler writes them if we don't write one.
 ```cpp
@@ -573,7 +577,11 @@ int main()
 ```
 Deleting a default constructor is not a case that we encounter frequently.
 
-## Default Constructor - Special Member Function
+## Not Declared Special Member Function
+If we declare a constructor with parameters, the compiler doesn't implicitly declare the default constructor. The default constructor is "not declared" in this case.
+
+# Default Constructor - Special Member Function
+#Cpp_DefaultConstructor
 The compiler writes the default constructor if it sees no constructor is written to the class. In this case, the constructor is in status "implicitly declared". How the compiler produces code for the special member functions was determined by the standards. That means this does not change depending on the compiler.
 
 If the data members of the class aren't subjected to a special process when the life span of the class object ends, there isn't any drawback to writing the destructor by the compiler. The ideal approach is writing the special member functions by the compiler if we no need any special process.
@@ -745,12 +753,14 @@ int main()
 }
 ```
 
-## Destructor - Special Member Function
+# Destructor - Special Member Function
+#Cpp_Destructor
  If we don't write a destructor, the compiler writes one. This destructor doesn't make a special operation, the data members of the class are destroyed. There is no drawback to writing the destructor by the compiler if no need to subject the data members of the function to a special operation end of the life span of the class object. 
 
 The destructor that is written by the compiler is the non-static, public, inline member function of the class and doesn't have any code. If the data members of the class are types of other types, the destructor for these types is called in reverse order that they are created in the destructor of the class.
 
-## Copy Constructor- Special Member Function
+# Copy Constructor- Special Member Function
+#Cpp_CopyConstructor
 First, let's examine the following code.
 ```cpp
 class Myclass {
@@ -860,10 +870,128 @@ private:
 ```
 That means if the type T, U, or M are a class type, the copy constructor of these is called too.
 
-The copy constructor copies the data members of the objects mutually.
+The copy constructor copies the data members of the objects mutually. This is called "**member-wise copy**" or "**shallow copy**". 
+
+**RAII - Resource Acquisition Is Initialization** #Cpp_Terms 
+When we create a class object, resources are acquired. This resource can be a memory area (for example heap), a file, a mutex, or a database connection. The resource is given back when the life of the object ends. If we don't give back the resource, this will cause a "**resource leak**". The constructor acquires the resource and the destructor gives back the resource.
+
+**When we write the copy constructor?**
+If one or more data members of our class are a pointer or a reference, the copy constructor written by the compiler copies their addresses. So it makes shallow copies of pointers. This means there will be one instance of the object that pointed. Their data is not copied. The destructor frees the area. If we do a shallow copy on a pointer object, the second class object can free the area while the pointer in the other class is valid. So, What will happen if the first object uses this area? This is an undefined behavior. We have to write the copy constructor ourselves in this situation.
+
+> [!example] Example: Implicitly declared copy constructor resource leak example:
+
+```cpp
+// sentence.h
+#include <cstddef>
+
+class Sentence {
+public:
+	Sentence(const char* p);
+	~Sentence();
+	void print()const;
+	std::size_t length()const;
+
+private:
+	char* mp;
+	std::size_t mlen;
+};
+
+// sentence.cpp
+#include <cstring>
+#include <iostream>
+#include "sentence.h"
+
+Sentence::Sentence(const char* p) : mlen(std::strlen(p)), mp(static_cast<char*>(std::malloc(mlen+1)))
+{
+	if(!mp) {
+		std::cout << "malloc failure\n";
+		exit(EXIT_FAILURE);
+	}
+	std::cout << "Sentence(const char *)\n";
+	std::cout << "Address of the allocated area: " << (void *)mp << "\n";
+	std::strcpy(mp, p);
+}
+
+Sentence::~Sentence()
+{
+	std::cout << "~Sentence()\n";
+	std::cout << "Freeing area, address: " << (void *)mp << "\n";
+	free(mp);
+}
+
+void Sentence::print() const
+{
+	std::cout << "[" << mp << "]\n";
+}
+
+std::size_t Sentence::length() const
+{
+	return mlen;
+}
+
+// main.cpp
+#include <iostream>
+
+void func(Sentence s) // Implicitly declared copy constructor is called
+{
+	std::cout << "func is called\n";
+	s.print();
+}
+
+int main()
+{
+	using namespace std;
+
+	Sentence s1 {"Hello message"};
+
+	s1.print();
+	cout << "length: " << s1.length() << "\n";
+
+	func(s1); // Destructor frees the memory (Destructor is called when exiting foo)
+
+	s1.print(); // Undefined Behavior. The pointer member of the object is a dangling pointer now.
+}
+```
+
+We can deduce the meaning of if we are writing the destructor (instead of writing by the compiler), we are probably freeing one or more resources, thus we should write the copy constructor too (and the copy assignment, we will look it).
+
+But we have another option instead of writing the copy constructor. We can prohibit the object copy. We can delete the copy constructor of the class.
+
+We write the copy constructor to solve this issue. (only added part is given in below example)
+```cpp
+// sentence.h
+#include <cstddef>
+
+class Sentence {
+public:
+	Sentence(const char* p);
+	~Sentence();
+	Sentence(const Sentence& other); // Copy constructor added
+	void print()const;
+	std::size_t length()const;
+
+private:
+	char* mp;
+	std::size_t mlen;
+};
+
+// sentence.cpp
+
+// Copy constructor added
+Sentence::Sentence(const Sentence& other) : mlen(other.mlen), mp(static_cast<char*>(std::malloc(mlen + 1)))
+{
+	if(!mp) {
+		std::cout << "malloc failure\n";
+		exit(EXIT_FAILURE);
+	}
+	std::cout << "Sentence(const Sentence&)\n";
+	std::cout << "Address of the allocated area: " << (void *)mp << "\n";
+	std::strcpy(mp, other.mp);
+}
+```  
 
 ---
-# Terms
+# Terms 
 - direct list initialization
 - Constructor Initializer List
 - Member Initializer List - MIL
@@ -878,5 +1006,7 @@ The copy constructor copies the data members of the objects mutually.
 - move assignment
 - delete keyword
 - default keyword
+- member-wise copy / shallow copy
+- resource leak
 ---
 Return: [[00_Course_Files]]

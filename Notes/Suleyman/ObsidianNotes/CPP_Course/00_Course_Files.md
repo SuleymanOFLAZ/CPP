@@ -54,4 +54,10 @@
 - The Copy Constructor
 
 [[09_CPP_Course]]
+- Copy Assignment
+- Move Semantic
+- Move Constructor
+- Move Assignment
+- The Move Function
+- Using Move Semantic in Own Implementation
 

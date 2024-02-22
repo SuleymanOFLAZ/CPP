@@ -18,6 +18,8 @@
 - another meaning of 'mutable keyword'
 - value and default initialization difference of a class object
 - functions that can be defaulted after C++20
+- threadlocal
+- mandatory copy elision
 # Topics that needed to be look
 - Most Vexing Parse
 - AAA: Almost Always Auto
